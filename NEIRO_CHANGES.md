@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.2.10
+- Privacy policy in About now opens Neiro's own policy instead of Mihon's.
+
 ## 0.21.2.9
 - The Add to Neiro buttons on the website now open Neiro directly, instead of asking which reader app to use.
 
