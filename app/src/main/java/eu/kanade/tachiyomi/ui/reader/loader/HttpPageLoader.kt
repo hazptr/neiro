@@ -236,8 +236,7 @@ internal class HttpPageLoader(
         if (!readerPreferences.bgmEnabled.get()) return
         val audio = page.chapter.pages?.firstNotNullOfOrNull { it.chapterAudio } ?: return
         val track = audio.trackAt(page.index) ?: return
-        if (bgmCache.find(track.id) != null) return
-        bgmCache.fetch(track, source)
+        bgmCache.prefetch(track, source)
     }
 
     /**

@@ -99,7 +99,7 @@ internal class DownloadPageLoader(
      * missing means a chapter that should have music will just play silently instead, with
      * nothing in the UI to say why.
      */
-    private fun attachBgm(pages: List<ReaderPage>, chapterPath: UniFile?): List<ReaderPage> {
+    private suspend fun attachBgm(pages: List<ReaderPage>, chapterPath: UniFile?): List<ReaderPage> {
         // Checked first, before any archive or network I/O: a user with audio off should never
         // pay for a sidecar read or a track fetch just for opening a chapter.
         if (!readerPreferences.bgmEnabled.get()) return pages
@@ -190,20 +190,21 @@ internal class DownloadPageLoader(
      * [BgmCache], the same store a remote track would be fetched into. That makes this a cache
      * hit for the player instead of a second copy living outside it.
      */
-    private fun extractTrackFromArchive(chapterFile: UniFile, filename: String, trackId: String): String? {
-        bgmCache.find(trackId)?.let { return Uri.fromFile(it).toString() }
+    private suspend fun extractTrackFromArchive(chapterFile: UniFile, filename: String, trackId: String): String? {
+        val uri = bgmCache.cachedUri(trackId)
+        if (bgmCache.isCached(trackId)) return uri
 
         logcat { "[BGM] extracting $filename from the downloaded archive" }
-        val cached = try {
+        val bytes = try {
             chapterFile.archiveReader(context).use { reader ->
                 val input = reader.getEntryStream(filename) ?: error("track entry $filename missing from archive")
-                bgmCache.put(trackId, input)
+                input.use { it.readBytes() }
             }
         } catch (e: Exception) {
             logcat(LogPriority.WARN, e) { "[BGM] failed to extract $filename from archive" }
-            null
-        } ?: return null
-        return Uri.fromFile(cached).toString()
+            return null
+        }
+        return uri.takeIf { bgmCache.put(trackId, bytes) }
     }
 }
 

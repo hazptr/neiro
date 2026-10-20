@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 
 /**
  * How long a cue must stay current before it is acted on.
@@ -20,17 +19,17 @@ private const val SETTLE_MS = 250L
 /**
  * Cue decision logic for source-provided background music: settle debounce, supersede,
  * enable/disable and loop changes. Has no Android dependency, so it can be driven directly from a
- * plain JVM test; [output] does the actual fetching and playback.
+ * plain JVM test; [output] does the actual loading and playback of whatever [T] it plays.
  */
-class BgmCueMachine(private val scope: CoroutineScope, private val output: Output) {
+class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val output: Output<T>) {
 
     /** What this machine decides should happen, carried out by whoever owns the real player. */
-    interface Output {
-        /** Fetches (and caches) the audio for [track]. Null means it could not be obtained. */
-        suspend fun load(track: AudioTrack, source: HttpSource?): File?
+    interface Output<T : Any> {
+        /** Resolves [track] to something playable. Null means it could not be obtained. */
+        suspend fun load(track: AudioTrack, source: HttpSource?): T?
 
-        /** Hands [file] to the real player. Returns whether it actually started. */
-        suspend fun start(file: File, id: String, loop: Boolean): Boolean
+        /** Hands [item] to the real player. Returns whether it actually started. */
+        suspend fun start(item: T, id: String, loop: Boolean): Boolean
 
         /** Applies a loop-preference change to whatever is currently playing. */
         fun setLooping(loop: Boolean)
@@ -93,9 +92,9 @@ class BgmCueMachine(private val scope: CoroutineScope, private val output: Outpu
         // leaving it pointed at a track that will never play and can never be retried.
         var started = false
         try {
-            val file = output.load(track, source) ?: return
+            val item = output.load(track, source) ?: return
             if (desiredId != track.id) return
-            started = output.start(file, track.id, loop)
+            started = output.start(item, track.id, loop)
         } finally {
             if (!started && activeId == track.id) activeId = null
         }

@@ -160,7 +160,7 @@ class BgmCueMachineTest {
     }
 
     /** Records every command the machine emits; fetches resolve immediately unless queued. */
-    private class FakeOutput : BgmCueMachine.Output {
+    private class FakeOutput : BgmCueMachine.Output<File> {
 
         val loadCalls = mutableListOf<String>()
         val startCalls = mutableListOf<String>()
@@ -174,7 +174,7 @@ class BgmCueMachineTest {
             return pendingLoads[track.id]?.await() ?: File("/${track.id}")
         }
 
-        override suspend fun start(file: File, id: String, loop: Boolean): Boolean {
+        override suspend fun start(item: File, id: String, loop: Boolean): Boolean {
             startCalls += id
             return startResult
         }

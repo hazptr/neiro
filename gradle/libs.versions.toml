@@ -27,6 +27,7 @@ androidx-test-uiautomator = "2.4.0"
 androidx-viewPager = "1.1.0"
 androidx-webkit = "1.17.1"
 androidx-work = "2.12.0"
+androidx-media3 = "1.11.1"
 apollo = "5.2.0"
 apollo-adapters = "0.8.0"
 archive = "1.1.7"
@@ -124,6 +125,9 @@ androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", 
 androidx-viewPager = { module = "androidx.viewpager:viewpager", version.ref = "androidx-viewPager" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "androidx-webkit" }
 androidx-work = { module = "androidx.work:work-runtime", version.ref = "androidx-work" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidx-media3" }
+androidx-media3-datasourceOkhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "androidx-media3" }
+androidx-media3-database = { module = "androidx.media3:media3-database", version.ref = "androidx-media3" }
 apollo = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
 apollo-adapters = { module = "com.apollographql.adapters:apollo-adapters-core", version.ref = "apollo-adapters" }
 archive = { module = "me.zhanghai.android.libarchive:library", version.ref = "archive" }
@@ -225,6 +229,7 @@ sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 valkyrie = { id = "io.github.composegears.valkyrie", version.ref = "valkyrie" }
 
 [bundles]
+media3 = ["androidx-media3-exoplayer", "androidx-media3-datasourceOkhttp", "androidx-media3-database"]
 androidx-lifecycle = ["androidx-lifecycle-common", "androidx-lifecycle-process", "androidx-lifecycle-runtime", "androidx-lifecycle-viewmodel", "androidx-lifecycle-viewmodelCompose"]
 coil = ["coil-core", "coil-gif", "coil-compose", "coil-network-okhttp"]
 kotlinx-coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android", "kotlinx-coroutines-guava"]

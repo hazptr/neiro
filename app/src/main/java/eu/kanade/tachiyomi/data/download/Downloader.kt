@@ -657,16 +657,17 @@ class Downloader(
 
             // Fetched through the shared cache, not a bespoke network call, so a track the reader
             // already previewed online is not downloaded a second time here.
-            val cachedTrack = bgmCache.fetch(track, source) ?: continue
             try {
                 val tmpFile = tmpDir.createFile("$filename.tmp")!!
-                try {
-                    cachedTrack.inputStream().use { input ->
-                        tmpFile.openOutputStream().use { output -> input.copyTo(output) }
-                    }
+                val stored = try {
+                    tmpFile.openOutputStream().use { output -> bgmCache.copyTo(track, source, output) }
                 } catch (e: Exception) {
                     tmpFile.delete()
                     throw e
+                }
+                if (!stored) {
+                    tmpFile.delete()
+                    continue
                 }
                 tmpFile.renameTo(filename)
                 files[track.id] = filename

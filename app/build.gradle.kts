@@ -260,6 +260,7 @@ dependencies {
 
     // Job scheduling
     implementation(libs.androidx.work)
+    implementation(libs.bundles.media3)
 
     // RxJava
     implementation(libs.rxJava)
