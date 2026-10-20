@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.2.8
+- Removed Mihon's website and social links from the About screen.
+
 ## 0.21.2.7
 - Redrew the icon's 音 in a font with taller proportions, so it no longer looks squashed on the launch and About screens.
 
