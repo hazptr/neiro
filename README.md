@@ -38,6 +38,11 @@ other audio instead of stopping it, and stores the tracks with downloaded chapte
 Neiro follows Mihon's releases: each Neiro version is a Mihon version plus a Neiro release number, so
 `0.21.2.1` is the first Neiro release on Mihon 0.21.2. Please report problems with Neiro here, not to Mihon.
 
+## Credits
+
+The icon's glyph is 音 from [Zen Maru Gothic](https://fonts.google.com/specimen/Zen+Maru+Gothic), licensed under
+the SIL Open Font License 1.1.
+
 ## License
 
     Copyright © 2015 Javier Tomás
