@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -369,15 +368,15 @@ class MainActivity : BaseActivity() {
         // App updates
         LaunchedEffect(Unit) {
             if (!updaterEnabled) return@LaunchedEffect
-            var lastCheck: Long? = null
-            // The app can stay open for days now, so a cold start alone rarely checks.
-            // Elapsed realtime keeps counting while the device sleeps, unlike the monotonic clock.
+            // The app can stay open for days now, so a cold start alone rarely checks. The last check is
+            // stored, so restarts, process death and recreated activities don't check again early; the wait
+            // is capped at the interval so a clock moved backwards can't stall it.
+            val interval = APP_UPDATE_CHECK_INTERVAL.inWholeMilliseconds
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 while (true) {
-                    lastCheck?.let {
-                        delay(it + APP_UPDATE_CHECK_INTERVAL.inWholeMilliseconds - SystemClock.elapsedRealtime())
-                    }
-                    lastCheck = SystemClock.elapsedRealtime()
+                    val wait = preferences.lastAppUpdateCheck.get() + interval - System.currentTimeMillis()
+                    if (wait > 0) delay(wait.coerceAtMost(interval))
+                    preferences.lastAppUpdateCheck.set(System.currentTimeMillis())
                     try {
                         val result = context.appGraph.updateChecker.checkForUpdate()
                         if (

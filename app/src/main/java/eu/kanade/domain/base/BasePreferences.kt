@@ -50,4 +50,10 @@ class BasePreferences(
         Preference.appStateKey("skipped_app_update"),
         "",
     )
+
+    /** Wall-clock time of the last automatic update check, so restarts and rotations don't check again */
+    val lastAppUpdateCheck: Preference<Long> = preferenceStore.getLong(
+        Preference.appStateKey("last_app_update_check"),
+        0,
+    )
 }
