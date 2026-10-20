@@ -37,8 +37,7 @@ private const val FADE_STEPS = 24
  * this class only carries out what it decides.
  *
  * Each track gets its own player, so a swap crossfades: the outgoing player is detached from
- * [player] before its fade-out starts. Tracks stream through [BgmCache], so playback starts before
- * a track has finished downloading and a replay costs no network.
+ * [player] before its fade-out starts. Tracks play from [BgmCache], so a replay costs no network.
  */
 @OptIn(UnstableApi::class)
 class ChapterBgmPlayer(
@@ -88,11 +87,18 @@ class ChapterBgmPlayer(
 
     /**
      * Downloaded tracks are plain files or document uris and are read directly. Everything else
-     * reads through the cache: remote tracks stream into it, and tracks extracted from an archive
-     * already sit in it.
+     * plays from the cache once it is fully stored there: tracks extracted from an archive already
+     * are, and remote tracks are fetched through [BgmCache.prefetch] first. Streaming straight into
+     * the cache instead made the player a second writer, and the page preloader, finding the entry
+     * locked, then re-downloaded the whole track for every page it loaded.
      */
-    override suspend fun load(track: AudioTrack, source: HttpSource?): MediaSource {
-        val isLocal = Uri.parse(track.url).scheme in setOf("file", "content")
+    override suspend fun load(track: AudioTrack, source: HttpSource?): MediaSource? {
+        val scheme = Uri.parse(track.url).scheme
+        val isLocal = scheme in setOf("file", "content")
+        if (!isLocal && scheme != BgmCache.CACHED_SCHEME && !bgmCache.prefetch(track, source)) {
+            logcat(LogPriority.WARN) { "[BGM] fetch failed for ${track.id}" }
+            return null
+        }
         val dataSourceFactory = if (isLocal) {
             DefaultDataSource.Factory(context)
         } else {

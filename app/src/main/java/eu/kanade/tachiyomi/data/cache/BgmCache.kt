@@ -35,12 +35,18 @@ import tachiyomi.core.common.util.system.logcat
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TimeSource
 
 private const val CACHE_DIRECTORY = "bgm_media_cache"
 private const val CACHE_SIZE = 64L * 1024 * 1024
 
 /** Tracks are seconds of music, not media files. Anything larger is a broken or hostile origin. */
 private const val MAX_TRACK_BYTES = 16L * 1024 * 1024
+
+/** How long a track that failed to download is left alone before it is tried again. */
+private val FAILURE_BACKOFF = 10.minutes
 
 /**
  * Media3 cache for source-provided audio tracks, shared by playback, preloading and downloads.
@@ -64,8 +70,18 @@ class BgmCache(
         )
     }
 
-    /** Serialises writers so a track requested from several pages at once is fetched once. */
+    /**
+     * Serialises writers so a track requested from several pages at once is fetched once. Every
+     * write goes through here: a second writer that finds the entry locked by another reads the
+     * whole track from upstream without storing it, once per page that asks for it.
+     */
     private val lock = Mutex()
+
+    /**
+     * Tracks that recently failed to download. Fetching is requested once per loaded page, so
+     * without this a dead track would be requested again for every page of its chapter.
+     */
+    private val failedAt = ConcurrentHashMap<String, TimeSource.Monotonic.ValueTimeMark>()
 
     fun keyOf(trackId: String): String = DiskUtil.hashKeyForDisk(trackId)
 
@@ -96,10 +112,15 @@ class BgmCache(
      */
     suspend fun prefetch(track: AudioTrack, source: HttpSource?): Boolean = withContext(Dispatchers.IO) {
         if (isCached(track.id)) return@withContext true
+        if (failedAt[track.id]?.let { it.elapsedNow() < FAILURE_BACKOFF } == true) return@withContext false
         lock.withLock {
-            isCached(track.id) || write(track.id, track.url) { dataSpec ->
+            if (isCached(track.id)) return@withLock true
+            if (failedAt[track.id]?.let { it.elapsedNow() < FAILURE_BACKOFF } == true) return@withLock false
+            val stored = write(track.id, track.url) { dataSpec ->
                 CacheWriter(dataSourceFactory(source).createDataSource(), dataSpec, null, ::checkSize)
             }
+            if (stored) failedAt.remove(track.id) else failedAt[track.id] = TimeSource.Monotonic.markNow()
+            stored
         }
     }
 
