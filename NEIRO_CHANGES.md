@@ -4,6 +4,10 @@ What changed in each Neiro release, on top of the Mihon version it is built on. 
 workflow publishes the section for the tagged version as the release notes, which is also what the
 in-app update screen shows.
 
+## 0.21.2.7
+- Redrew the icon's 音 in a font with taller proportions, so it no longer looks squashed on the
+  launch and About screens.
+
 ## 0.21.2.6
 - The mute and repeat buttons now only appear with the reader menu, stacked vertically, instead of
   staying on screen while reading.

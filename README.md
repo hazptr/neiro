@@ -40,7 +40,7 @@ Neiro follows Mihon's releases: each Neiro version is a Mihon version plus a Nei
 
 ## Credits
 
-The icon's glyph is 音 from [Zen Maru Gothic](https://fonts.google.com/specimen/Zen+Maru+Gothic), licensed under
+The icon's glyph is 音 from [M PLUS Rounded 1c](https://fonts.google.com/specimen/M+PLUS+Rounded+1c), licensed under
 the SIL Open Font License 1.1.
 
 ## License
