@@ -37,34 +37,48 @@
   <main class="wrap doc">
     <article class="card">
       <h1>Privacy</h1>
-      <p class="updated">Last updated 20 October 2026</p>
+      <p class="updated">Last updated 20 October 2026. Applies to every Neiro version; 0.21.2.9 and earlier linked to Mihon's policy by mistake.</p>
 
-      <p>Neiro has no analytics, no crash reporting, no ads and no account. It is built without Firebase or any other tracking library, and there is no Neiro server: nothing you do in the app is sent to the people who make it.</p>
+      <p>Neiro has no analytics, no crash reporting, no ads and no account. The app you download contains no analytics or crash-reporting code (no Firebase), and there is no Neiro server: nothing you do in the app is sent to the people who make it. GitHub, which hosts the downloads, shows download counts for each release.</p>
 
-      <h2>What stays on your device</h2>
-      <p>Your library, reading history, categories, settings, downloads and backups are stored on your device, in the folder you choose. Background music tracks are cached on your device too. Crash logs are only written to your device, and only leave it if you share one yourself.</p>
+      <h2>What is stored on your device</h2>
+      <ul>
+        <li><strong>In Neiro's own storage:</strong> your library, reading history, categories, settings, tracker logins, and caches of pages, covers and background music. Site cookies and storage from WebView are kept here too, until you clear them in Settings, Advanced.</li>
+        <li><strong>In the folder you choose:</strong> downloaded chapters (with their background music, if that setting is on) and backups. Neiro makes an automatic backup there every 12 hours by default. If that folder syncs to a cloud service, your backups go there too.</li>
+        <li><strong>Phone backups:</strong> Neiro opts out of Google cloud backup, but Android may still copy its data when you set up a new phone from an old one.</li>
+      </ul>
+
+      <h2>Extensions</h2>
+      <p>Extensions are code written by third parties. They run inside Neiro with the same access to your library and settings that Neiro has, and they connect to the sites they read from to search, show details, load pages and fetch background music. Those sites see your IP address and the requests you make, under their own privacy policies. Nothing technically stops an extension from contacting other addresses, so only install extensions from stores you trust.</p>
 
       <h2>What Neiro connects to</h2>
       <ul>
-        <li><strong>Updates.</strong> While Neiro is open it asks GitHub (<code>api.github.com</code>) for the latest release at most every six hours, and when you tap Check for updates. Downloading an update fetches the APK from GitHub.</li>
-        <li><strong>Extension stores you add.</strong> Neiro fetches the index of each extension store you add, to list extensions and check them for updates. No store is added by default.</li>
-        <li><strong>Extensions.</strong> Extensions connect directly to the sites they read from, to search, show details, load pages and fetch background music. Those sites see your IP address and the requests you make, like they would in a browser, under their own privacy policies.</li>
-        <li><strong>WebView.</strong> Opening a page in WebView loads it in your device's system WebView.</li>
-        <li><strong>Trackers.</strong> Only if you log in to one. Neiro then sends your reading progress to that service, under its own privacy policy.</li>
-        <li><strong>DNS over HTTPS.</strong> Only if you turn it on in advanced settings. Your DNS lookups then go to the provider you pick.</li>
+        <li><strong>Updates.</strong> Neiro asks GitHub (<code>api.github.com</code>) for the latest release when you open it, again every six hours while it stays open, and when you tap Check for updates. Some screen changes, like rotating, can count as opening it again. Downloading an update fetches the APK from GitHub.</li>
+        <li><strong>Extension stores you add.</strong> Each time Neiro starts it refreshes the index of every store you've added, and it downloads extension files and icons from the addresses the store lists. No store is added by default, but restoring a backup brings back the stores it contains.</li>
+        <li><strong>Images in text.</strong> Images inside manga descriptions and release notes load from wherever they're hosted.</li>
+        <li><strong>WebView.</strong> Pages you open in WebView load in your device's system WebView. When a site shows a browser check, Neiro may also load it in a hidden WebView automatically. As in a browser, sites in WebView can ask for your device model and Android version.</li>
+        <li><strong>Trackers.</strong> Only after you log in to one. Neiro then sends the titles you search for and your reading status, progress, score and dates, and keeps them in sync as you read. Logins use the apps Mihon registered with those services, so the services see the requests as coming from Mihon.</li>
+        <li><strong>DNS over HTTPS.</strong> Only if you turn it on in Settings, Advanced. It covers Neiro's own requests; WebView still uses your normal DNS.</li>
+        <li><strong>Connections.</strong> Some sites only work over unencrypted HTTP, so Neiro allows it, and Neiro trusts certificates you install yourself.</li>
       </ul>
+
+      <h2>Crash logs</h2>
+      <p>Crash logs are written to your device and only leave it if you share one. A crash log contains a random installation ID, your device model and Android version, your WebView version, your time zone, your extension list and recent app logs. With verbose logging turned on, those logs can include login tokens and cookies, so check a log before you share it.</p>
 
       <h2>Permissions</h2>
       <ul>
-        <li><strong>Storage:</strong> only the folder you choose, for downloads and backups.</li>
-        <li><strong>Notifications:</strong> for library updates, downloads and app updates.</li>
-        <li><strong>Install and uninstall apps:</strong> to install, update and remove extensions, and to install Neiro's own updates.</li>
-        <li><strong>Network state:</strong> to connect to the internet and to respect the Wi-Fi only setting for downloads.</li>
-        <li><strong>Background work:</strong> foreground services and wake locks, so downloads and library updates finish while the screen is off. Neiro can ask to be exempt from battery optimisation for the same reason; that is up to you.</li>
+        <li><strong>Internet, network and Wi-Fi state:</strong> to connect, and to respect the Wi-Fi only setting for downloads.</li>
+        <li><strong>Notifications:</strong> for new chapters, library updates and errors, downloads, backups and restores, extension updates and incognito mode.</li>
+        <li><strong>See installed apps:</strong> to find which extensions are installed. The list never leaves your device.</li>
+        <li><strong>Install, update and uninstall apps:</strong> to manage extensions. Shizuku can be used for this if you set it up.</li>
+        <li><strong>Biometrics:</strong> for the optional app lock.</li>
+        <li><strong>Storage:</strong> legacy storage permissions are declared for older Android versions, but Neiro only uses the folder you pick.</li>
+        <li><strong>Background work:</strong> foreground services, wake locks and starting at boot, so downloads, library updates and backups finish and stay scheduled. Neiro can ask to be exempt from battery optimisation for the same reason; that is up to you.</li>
+        <li><strong>App language:</strong> to use the language you pick for Neiro.</li>
       </ul>
 
       <h2>These websites</h2>
-      <p>The Neiro pages and <a href="https://hazptr.github.io/">hazptr.github.io</a> are hosted on GitHub Pages, so GitHub handles every visit under the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>. The pages call the GitHub API from your browser to show the latest release and the project list, and the extension store page loads the store index from GitHub. The only thing stored in your browser is whether you turned the bubble sound on. There are no cookies and no analytics.</p>
+      <p>This covers <a href="https://hazptr.github.io/">hazptr.github.io</a>, <a href="../">/neiro/</a> and <a href="../../neiro-extensions/">/neiro-extensions/</a>. They are hosted on GitHub Pages, so GitHub handles every visit under the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>. The pages call the GitHub API from your browser to show the latest release and the project list, and the extension store page loads the store index and extension icons from GitHub. The only thing stored in your browser is whether you turned the bubble sound on. There are no cookies and no analytics.</p>
 
       <h2>Questions</h2>
       <p>Open an issue on <a href="https://github.com/hazptr/neiro/issues">GitHub</a>.</p>
