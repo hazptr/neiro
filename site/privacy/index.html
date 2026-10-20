@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy · Neiro</title>
+  <meta name="description" content="What Neiro and its websites do and do not collect.">
+  <meta name="theme-color" content="#07090f">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/base.css?v=1b152e3636">
+  <style>
+    :root { --accent: #2dd4bf; --accent-2: #f5b84b; --glow: rgba(45, 212, 191, 0.4); }
+    .doc { max-width: 760px; margin: 60px auto 0; }
+    .doc .card { padding: 34px clamp(22px, 5vw, 46px); transform: none; background: rgba(11, 15, 23, 0.96); }
+    .doc h1 { margin: 0 0 6px; font-size: clamp(36px, 7vw, 56px); letter-spacing: -0.03em; line-height: 1.05; }
+    .doc h2 { margin: 34px 0 10px; font-size: 22px; letter-spacing: -0.01em; }
+    .doc p, .doc li { color: #c7d2dc; }
+    .doc ul { padding-left: 20px; }
+    .doc li { margin: 6px 0; }
+    .doc strong { color: var(--ink); }
+    .doc .updated { color: var(--muted); font-size: 14px; }
+    .doc a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav class="nav">
+    <a class="brand" href="../"><img src="../assets/icon.svg" alt="">Neiro</a>
+    <div class="links">
+      <a href="../">App</a>
+      <a href="../../neiro-extensions/" class="hide-sm">Extensions</a>
+      <a href="https://github.com/hazptr/neiro" class="hide-sm">GitHub</a>
+    </div>
+  </nav>
+
+  <main class="wrap doc">
+    <article class="card">
+      <h1>Privacy</h1>
+      <p class="updated">Last updated 20 October 2026</p>
+
+      <p>Neiro has no analytics, no crash reporting, no ads and no account. It is built without Firebase or any other tracking library, and there is no Neiro server: nothing you do in the app is sent to the people who make it.</p>
+
+      <h2>What stays on your device</h2>
+      <p>Your library, reading history, categories, settings, downloads and backups are stored on your device, in the folder you choose. Background music tracks are cached on your device too. Crash logs are only written to your device, and only leave it if you share one yourself.</p>
+
+      <h2>What Neiro connects to</h2>
+      <ul>
+        <li><strong>Updates.</strong> While Neiro is open it asks GitHub (<code>api.github.com</code>) for the latest release at most every six hours, and when you tap Check for updates. Downloading an update fetches the APK from GitHub.</li>
+        <li><strong>Extension stores you add.</strong> Neiro fetches the index of each extension store you add, to list extensions and check them for updates. No store is added by default.</li>
+        <li><strong>Extensions.</strong> Extensions connect directly to the sites they read from, to search, show details, load pages and fetch background music. Those sites see your IP address and the requests you make, like they would in a browser, under their own privacy policies.</li>
+        <li><strong>WebView.</strong> Opening a page in WebView loads it in your device's system WebView.</li>
+        <li><strong>Trackers.</strong> Only if you log in to one. Neiro then sends your reading progress to that service, under its own privacy policy.</li>
+        <li><strong>DNS over HTTPS.</strong> Only if you turn it on in advanced settings. Your DNS lookups then go to the provider you pick.</li>
+      </ul>
+
+      <h2>Permissions</h2>
+      <ul>
+        <li><strong>Storage:</strong> only the folder you choose, for downloads and backups.</li>
+        <li><strong>Notifications:</strong> for library updates, downloads and app updates.</li>
+        <li><strong>Install and uninstall apps:</strong> to install, update and remove extensions, and to install Neiro's own updates.</li>
+        <li><strong>Network state:</strong> to connect to the internet and to respect the Wi-Fi only setting for downloads.</li>
+        <li><strong>Background work:</strong> foreground services and wake locks, so downloads and library updates finish while the screen is off. Neiro can ask to be exempt from battery optimisation for the same reason; that is up to you.</li>
+      </ul>
+
+      <h2>These websites</h2>
+      <p>The Neiro pages and <a href="https://hazptr.github.io/">hazptr.github.io</a> are hosted on GitHub Pages, so GitHub handles every visit under the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>. The pages call the GitHub API from your browser to show the latest release and the project list, and the extension store page loads the store index from GitHub. The only thing stored in your browser is whether you turned the bubble sound on. There are no cookies and no analytics.</p>
+
+      <h2>Questions</h2>
+      <p>Open an issue on <a href="https://github.com/hazptr/neiro/issues">GitHub</a>.</p>
+    </article>
+  </main>
+
+  <footer class="wrap">
+    Built on <a href="https://github.com/mihonapp/mihon">Mihon</a>, Apache-2.0.
+    <br><a href="https://hazptr.github.io/">hazptr</a> · <a href="https://github.com/hazptr/neiro">Source</a>
+  </footer>
+
+  <script src="../assets/bubbles.js?v=b2b3591ffd"></script>
+  <script src="../assets/fx.js?v=879c08401d"></script>
+  <script>
+    Bubbles.start({ palette: ['#2dd4bf', '#00897b', '#f5b84b', '#7dd3fc'], glyphs: ['音', '♪'], density: 0.5 });
+  </script>
+</body>
+</html>
