@@ -5,7 +5,7 @@
 ### Mihon, with background music
 
 Neiro is [Mihon](https://github.com/mihonapp/mihon) plus one feature: it plays the background music some
-sources attach to a chapter, such as the sound episodes on Webtoons. Everything else is Mihon, and
+sources attach to a chapter. Everything else is Mihon, and
 regular extensions work unchanged.
 
 *Requires Android 8.0 or higher.*
@@ -27,7 +27,8 @@ A source has to provide the music. Add the Neiro extension store in **Settings â
 https://raw.githubusercontent.com/hazptr/neiro-extensions/repo/index.min.json
 ```
 
-and install **Webtoons.com Audio** from it. Sources built against
+and install an extension from it. Extensions that play music show a small music note on their icon.
+Sources built against
 [neiro-extensions-lib](https://github.com/hazptr/neiro-extensions-lib) can attach a `ChapterAudio` timeline
 to their pages; Neiro plays each track over the pages it is cued to, crossfades between tracks, ducks
 other audio instead of stopping it, and stores the tracks with downloaded chapters so they play offline
