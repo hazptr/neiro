@@ -71,6 +71,17 @@
                 <data android:host="add-repo" />
             </intent-filter>
 
+            <!-- Neiro's own deeplink to add an extension store, so a web page can target Neiro alone -->
+            <intent-filter android:label="@string/action_addExtensionStore">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="neiro" />
+                <data android:host="add-repo" />
+            </intent-filter>
+
             <!-- Deeplink to add extension store -->
             <intent-filter android:label="@string/action_addExtensionStore">
                 <action android:name="android.intent.action.VIEW" />
