@@ -53,7 +53,7 @@
 
       <h2>What Neiro connects to</h2>
       <ul>
-        <li><strong>Updates.</strong> Neiro asks GitHub (<code>api.github.com</code>) for the latest release when you open it, again every six hours while it stays open, and when you tap Check for updates. Some screen changes, like rotating, can count as opening it again. Downloading an update fetches the APK from GitHub.</li>
+        <li><strong>Updates.</strong> Neiro asks GitHub (<code>api.github.com</code>) for the latest release at most once every six hours, whether it stays open or you reopen it, and whenever you tap Check for updates. Versions before 0.21.2.11 could also check again after a restart or a screen rotation. Downloading an update fetches the APK from GitHub.</li>
         <li><strong>Extension stores you add.</strong> Each time Neiro starts it refreshes the index of every store you've added, and it downloads extension files and icons from the addresses the store lists. No store is added by default, but restoring a backup brings back the stores it contains.</li>
         <li><strong>Images in text.</strong> Images inside manga descriptions and release notes load from wherever they're hosted.</li>
         <li><strong>WebView.</strong> Pages you open in WebView load in your device's system WebView. When a site shows a browser check, Neiro may also load it in a hidden WebView automatically. As in a browser, sites in WebView can ask for your device model and Android version.</li>
