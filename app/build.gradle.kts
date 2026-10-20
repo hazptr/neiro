@@ -1,6 +1,5 @@
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.BuildConfigField
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import mihon.gradle.Config
 import mihon.gradle.getCurrentTime
 import mihon.gradle.getLatestCommitCount
@@ -22,13 +21,6 @@ plugins {
     alias(libs.plugins.apollo)
 }
 
-if (Config.includeTelemetry) {
-    pluginManager.apply {
-        apply(libs.plugins.google.services.get().pluginId)
-        apply(libs.plugins.firebase.crashlytics.get().pluginId)
-    }
-}
-
 val keystorePropertiesFile = layout.settingsDirectory.file("keystore.properties").asFile
 
 android {
@@ -43,7 +35,8 @@ android {
         versionCode = 38 * 100 + neiroRelease
         versionName = "0.21.2.$neiroRelease"
 
-        buildConfigField("boolean", "TELEMETRY_INCLUDED", "${Config.includeTelemetry}")
+        // Neiro ships no telemetry; kept so Mihon's checks of it stay in place
+        buildConfigField("boolean", "TELEMETRY_INCLUDED", "false")
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -110,14 +103,6 @@ android {
             applicationIdSuffix = ".benchmark"
 
             matchingFallbacks.addAll(commonMatchingFallbacks)
-        }
-
-        if (Config.includeTelemetry) {
-            configureEach {
-                configure<CrashlyticsExtension> {
-                    mappingFileUploadEnabled = Config.uploadCrashlyticsMapping
-                }
-            }
         }
     }
 

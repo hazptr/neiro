@@ -11,7 +11,8 @@ import tachiyomi.core.common.preference.PreferenceStore
 class PrivacyPreferences(
     preferenceStore: PreferenceStore,
 ) {
-    val crashlytics: Preference<Boolean> = preferenceStore.getBoolean("crashlytics", true)
+    // Off by default: Neiro ships no telemetry, and these must never turn into opt-out reporting
+    val crashlytics: Preference<Boolean> = preferenceStore.getBoolean("crashlytics", false)
 
-    val analytics: Preference<Boolean> = preferenceStore.getBoolean("analytics", true)
+    val analytics: Preference<Boolean> = preferenceStore.getBoolean("analytics", false)
 }
