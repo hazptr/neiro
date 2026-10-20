@@ -20,7 +20,9 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -277,21 +279,24 @@ class ReaderActivity : BaseActivity() {
 
             AppBars(state = state)
 
-            if (state.bgmAvailable) {
+            // Part of the reader menu: shown and hidden with it, just below its top bar
+            AnimatedVisibility(
+                visible = state.bgmAvailable && state.menuVisible,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .displayCutoutPadding()
+                    .padding(top = 64.dp)
+                    .padding(8.dp),
+            ) {
                 val bgmLoop by readerPreferences.bgmLoop.collectAsState()
-                // Sits below the top app bar while the menu is open instead of on top of its actions
-                val menuOffset by animateDpAsState(if (state.menuVisible) 64.dp else 0.dp, label = "bgmControls")
                 ReaderBgmControls(
                     muted = state.bgmMuted,
                     loop = bgmLoop,
                     onToggleMuted = viewModel::toggleBgmMuted,
                     onToggleLoop = viewModel::toggleBgmLoop,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .displayCutoutPadding()
-                        .padding(top = menuOffset)
-                        .padding(8.dp),
                 )
             }
         }

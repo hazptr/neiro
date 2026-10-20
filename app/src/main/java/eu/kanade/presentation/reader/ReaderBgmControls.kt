@@ -1,6 +1,6 @@
 package eu.kanade.presentation.reader
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
@@ -37,7 +37,7 @@ fun ReaderBgmControls(
         shape = CircleShape,
         color = Color.Black.copy(alpha = 0.35f),
     ) {
-        Row {
+        Column {
             IconToggleButton(
                 checked = muted,
                 onCheckedChange = { onToggleMuted() },

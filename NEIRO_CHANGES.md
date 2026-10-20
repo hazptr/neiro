@@ -4,6 +4,10 @@ What changed in each Neiro release, on top of the Mihon version it is built on. 
 workflow publishes the section for the tagged version as the release notes, which is also what the
 in-app update screen shows.
 
+## 0.21.2.6
+- The mute and repeat buttons now only appear with the reader menu, stacked vertically, instead of
+  staying on screen while reading.
+
 ## 0.21.2.5
 - Extensions that play background music now show a small music note on their icon, in the extension
   list and in the extension store.
