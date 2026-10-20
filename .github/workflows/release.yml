@@ -44,6 +44,19 @@ jobs:
             exit 1
           fi
 
+      - name: Release notes
+        run: |
+          set -e
+          version="${GITHUB_REF_NAME#v}"
+          # The section for this version: from its heading up to the next one
+          awk -v v="## $version" '$0 == v { found = 1; next } found && /^## / { exit } found' NEIRO_CHANGES.md \
+            | sed -e '/./,$!d' > notes.md
+          if [ ! -s notes.md ]; then
+            echo "NEIRO_CHANGES.md has no section for $version" >&2
+            exit 1
+          fi
+          cat notes.md
+
       - name: Decode signing keystore
         run: echo "$SIGNING_KEY" | base64 -d > "${{ runner.temp }}/neiro.keystore"
         env:
@@ -62,23 +75,32 @@ jobs:
           set -e
           out=app/build/outputs/apk/release
           tag="${GITHUB_REF_NAME}"
-          mv $out/app-universal-release.apk neiro-$tag.apk
+          mv "$out/app-universal-release.apk" "neiro-$tag.apk"
           for abi in arm64-v8a armeabi-v7a x86 x86_64; do
-            mv $out/app-$abi-release.apk neiro-$abi-$tag.apk
+            mv "$out/app-$abi-release.apk" "neiro-$abi-$tag.apk"
           done
           sha256sum neiro-*.apk > SHA256SUMS
+
+      - name: Assemble release body
+        run: |
+          set -e
+          {
+            cat notes.md
+            echo
+            # The app shows everything before the last <!--> as the changelog and drops the rest
+            echo '<!-->'
+            echo
+            echo '> [!TIP]'
+            echo '>'
+            echo "> ### If you are unsure which version to download then go with \`neiro-${GITHUB_REF_NAME}.apk\`"
+          } > release-body.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ github.ref_name }}
           name: Neiro ${{ github.ref_name }}
-          body: |
-            Mihon with background music for sources that provide it. The first three numbers of the version are the Mihon release it is built on.
-
-            > [!TIP]
-            >
-            > ### If you are unsure which version to download then go with `neiro-${{ github.ref_name }}.apk`
+          body_path: release-body.md
           files: |
             neiro-*.apk
             SHA256SUMS
