@@ -1,86 +1,57 @@
 <div align="center">
 
-<a href="https://mihon.app">
-    <img src="./.github/assets/logo.png" alt="Mihon logo" title="Mihon logo" width="80"/>
-</a>
+# Neiro
 
-# Mihon [App](#)
+### Mihon, with background music
 
-### Full-featured reader
-Discover and read manga, webtoons, comics, and more – easier than ever on your Android device.
-
-[![Discord server](https://img.shields.io/discord/1195734228319617024.svg?label=&labelColor=6A7EC2&color=7389D8&logo=discord&logoColor=FFFFFF)](https://discord.gg/mihon)
-[![GitHub downloads](https://img.shields.io/github/downloads/mihonapp/mihon/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://mihon.app/download)
-
-[![CI](https://img.shields.io/github/actions/workflow/status/mihonapp/mihon/build.yml?labelColor=27303D)](https://github.com/mihonapp/mihon/actions/workflows/build_push.yml)
-[![License: Apache-2.0](https://img.shields.io/github/license/mihonapp/mihon?labelColor=27303D&color=0877d2)](/LICENSE)
-[![Translation status](https://img.shields.io/weblate/progress/mihon?labelColor=27303D&color=946300)](https://hosted.weblate.org/engage/mihon/)
-
-## Download
-
-[![Mihon Stable](https://img.shields.io/github/release/mihonapp/mihon.svg?maxAge=3600&label=Stable&labelColor=06599d&color=043b69)](https://mihon.app/download)
-[![Mihon Beta](https://img.shields.io/github/v/release/mihonapp/mihon-preview.svg?maxAge=3600&label=Beta&labelColor=2c2c47&color=1c1c39)](https://mihon.app/download)
+Neiro is [Mihon](https://github.com/mihonapp/mihon) plus one feature: it plays the background music some
+sources attach to a chapter, such as the sound episodes on Webtoons. Everything else is Mihon, and
+regular extensions work unchanged.
 
 *Requires Android 8.0 or higher.*
 
-## Features
-
-<div align="left">
-
-* Local reading of content.
-* A configurable reader with multiple viewers, reading directions and other settings.
-* Tracker support: [MangaBaka](https://mangabaka.org), [MyAnimeList](https://myanimelist.net/), [AniList](https://anilist.co/), [Kitsu](https://kitsu.app/), [MangaUpdates](https://mangaupdates.com), [Shikimori](https://shikimori.one), [Bangumi](https://bgm.tv/), and [Hikka](https://hikka.io/) support.
-* Categories to organize your library.
-* Light and dark themes.
-* Schedule updating your library for new chapters.
-* Create backups locally to read offline or to your desired cloud service.
-* Plus much more...
-
 </div>
 
-## Contributing
+## Download
 
-[Code of conduct](./CODE_OF_CONDUCT.md) · [Contributing guide](./CONTRIBUTING.md)
+Get the latest APK from [Releases](https://github.com/hazptr/neiro/releases). It installs alongside Mihon
+(package `app.neiro`) and updates itself from this repository.
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+## Background music
 
-Before reporting a new issue, take a look at the [FAQ](https://mihon.app/docs/faq/general), the [changelog](https://mihon.app/changelogs/) and the already opened [issues](https://github.com/mihonapp/mihon/issues); if you got any questions, join our [Discord server](https://discord.gg/mihon).
+Turn it on in the reader's settings sheet, under **General → Play background music**. It is off by default.
 
+A source has to provide the music. Add the Neiro extension store in **Settings → Browse → Extension stores**:
 
-### Repositories
+```
+https://raw.githubusercontent.com/hazptr/neiro-extensions/repo/index.min.json
+```
 
-[![mihonapp/website - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=website&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/website/)
-[![mihonapp/bitmap.kt - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=bitmap.kt&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/bitmap.kt/)
+and install **Webtoons.com Audio** from it. Sources built against
+[neiro-extensions-lib](https://github.com/hazptr/neiro-extensions-lib) can attach a `ChapterAudio` timeline
+to their pages; Neiro plays each track over the pages it is cued to, crossfades between tracks, ducks
+other audio instead of stopping it, and stores the tracks with downloaded chapters so they play offline
+(**Settings → Downloads → Download background music**).
 
-### Credits
+## Relationship to Mihon
 
-Thank you to all the people who have contributed!
+Neiro follows Mihon's releases: each Neiro version is a Mihon version plus a Neiro release number, so
+`0.21.2.1` is the first Neiro release on Mihon 0.21.2. Please report problems with Neiro here, not to Mihon.
 
-<a href="https://github.com/mihonapp/mihon/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=mihonapp/mihon" alt="Mihon app contributors" title="Mihon app contributors" width="800"/>
-</a>
+## License
 
-### Disclaimer
+    Copyright © 2015 Javier Tomás
+    Copyright © 2024 Mihon Open Source Project
+    Copyright © 2026 hazptr
 
-The developer(s) of this application does not have any affiliation with the content providers available, and this application hosts zero content.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-### License
+    http://www.apache.org/licenses/LICENSE-2.0
 
-<pre>
-Copyright © 2015 Javier Tomás
-Copyright © 2024 Mihon Open Source Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-</pre>
-
-</div>
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.

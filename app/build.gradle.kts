@@ -35,10 +35,13 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "app.mihon"
+        applicationId = "app.neiro"
 
-        versionCode = 38
-        versionName = "0.21.2"
+        // Neiro releases on top of a Mihon version: the fourth number counts Neiro releases on it,
+        // and versionCode keeps rising across Mihon bumps.
+        val neiroRelease = 1
+        versionCode = 38 * 100 + neiroRelease
+        versionName = "0.21.2.$neiroRelease"
 
         buildConfigField("boolean", "TELEMETRY_INCLUDED", "${Config.includeTelemetry}")
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
