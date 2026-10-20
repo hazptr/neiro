@@ -5,6 +5,11 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.2.11
+- The update check now really runs at most every six hours, instead of again on every restart or screen rotation.
+- Removed the leftover Firebase setup from the build, and analytics and crash reporting now default to off, so they can never be switched on by accident.
+- When the browser check needs an app name to show sites, Neiro no longer picks a random installed app.
+
 ## 0.21.2.10
 - Privacy policy in About now opens Neiro's own policy instead of Mihon's.
 

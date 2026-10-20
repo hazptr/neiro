@@ -31,7 +31,7 @@ android {
 
         // Neiro releases on top of a Mihon version: the fourth number counts Neiro releases on it,
         // and versionCode keeps rising across Mihon bumps.
-        val neiroRelease = 10
+        val neiroRelease = 11
         versionCode = 38 * 100 + neiroRelease
         versionName = "0.21.2.$neiroRelease"
 
