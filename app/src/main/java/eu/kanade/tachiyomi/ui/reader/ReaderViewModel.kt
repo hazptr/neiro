@@ -72,6 +72,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -306,8 +307,7 @@ class ReaderViewModel(
     private val downloadAheadAmount = downloadPreferences.autoDownloadWhileReading.get()
 
     init {
-        readerPreferences.bgmEnabled.changes()
-            .drop(1)
+        merge(readerPreferences.bgmEnabled.changes().drop(1), readerPreferences.bgmLoop.changes().drop(1))
             .onEach { lastBgmPage?.let(::onBgmPageChanged) }
             .launchIn(viewModelScope)
 
@@ -369,14 +369,22 @@ class ReaderViewModel(
         lastBgmPage = page
         logChapterAudio(page)
         val enabled = readerPreferences.bgmEnabled.get()
-        val track = if (enabled) {
-            page.chapter.pages
-                ?.firstNotNullOfOrNull { it.chapterAudio }
-                ?.trackAt(page.index)
-        } else {
-            null
-        }
-        bgmPlayer.onPageChanged(track, getSource(), enabled, readerPreferences.bgmLoop.get())
+        val audio = page.chapter.pages?.firstNotNullOfOrNull { it.chapterAudio }
+        mutableState.update { it.copy(bgmAvailable = enabled && audio != null) }
+        // Muting goes through the same path as turning audio off, so a muted reader holds no
+        // player and no audio focus, and unmuting starts the track that covers the current page.
+        val playing = enabled && !state.value.bgmMuted
+        val track = if (playing) audio?.trackAt(page.index) else null
+        bgmPlayer.onPageChanged(track, getSource(), playing, readerPreferences.bgmLoop.get())
+    }
+
+    fun toggleBgmMuted() {
+        mutableState.update { it.copy(bgmMuted = !it.bgmMuted) }
+        lastBgmPage?.let(::onBgmPageChanged)
+    }
+
+    fun toggleBgmLoop() {
+        readerPreferences.bgmLoop.toggle()
     }
 
     override fun onCleared() {
@@ -1187,6 +1195,12 @@ class ReaderViewModel(
         val dialog: Dialog? = null,
         val menuVisible: Boolean = false,
         @IntRange(from = -100, to = 100) val brightnessOverlayValue: Int = 0,
+
+        /** Whether the current chapter has background music the reader would play. */
+        val bgmAvailable: Boolean = false,
+
+        /** Silences background music for this reading session only. */
+        val bgmMuted: Boolean = false,
     ) {
         val currentChapter: ReaderChapter?
             get() = viewerChapters?.currChapter

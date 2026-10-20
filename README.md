@@ -19,7 +19,7 @@ Get the latest APK from [Releases](https://github.com/hazptr/neiro/releases). It
 
 ## Background music
 
-Turn it on in the reader's settings sheet, under **General → Play background music**. It is off by default.
+Turn it on in the reader's settings sheet, under **General → Play background music**. It is off by default. While a chapter with music is open, translucent controls in the top right corner mute it for the session and toggle repeat.
 
 A source has to provide the music. Add the Neiro extension store in **Settings → Browse → Extension stores**:
 
