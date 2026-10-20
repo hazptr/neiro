@@ -49,6 +49,7 @@ internal object ExtensionLoader {
     private const val METADATA_NAME = "tachiyomix.name"
     private const val METADATA_EXTENSION_LIB = "tachiyomix.extensionLib"
     private const val METADATA_CONTENT_WARNING = "tachiyomix.contentWarning"
+    private const val METADATA_AUDIO = "neiro.extension.audio"
 
     private val SUPPORTED_LIB_VERSIONS = listOf(1.4, 1.6)
 
@@ -325,6 +326,7 @@ internal object ExtensionLoader {
             metaData.getInt(METADATA_NSFW) == 1 -> ContentWarning.NSFW
             else -> ContentWarning.SAFE
         }
+        val hasAudio = metaData?.getBoolean(METADATA_AUDIO) == true
 
         fun notLoaded(
             reason: Extension.NotLoaded.Reason,
@@ -339,6 +341,7 @@ internal object ExtensionLoader {
             signatures = signatures,
             store = store,
             libVersion = libVersion,
+            hasAudio = hasAudio,
             reason = reason,
         )
 
@@ -446,6 +449,7 @@ internal object ExtensionLoader {
             isShared = extensionInfo.isShared,
             signatures = signatures,
             store = store,
+            hasAudio = hasAudio,
         )
     }
 

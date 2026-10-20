@@ -17,6 +17,8 @@ data class NetworkLegacyExtension(
     val version: String,
     val nsfw: Int,
     val sources: List<Source>?,
+    /** Set by Neiro's own store for extensions that play background music; absent elsewhere. */
+    val audio: Int = 0,
 ) {
     @Serializable
     data class Source(
@@ -57,6 +59,7 @@ data class NetworkLegacyExtension(
                 }
             },
             store = store,
+            hasAudio = audio == 1,
         )
     }
 }

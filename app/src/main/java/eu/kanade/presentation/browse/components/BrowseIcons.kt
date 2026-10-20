@@ -2,10 +2,16 @@ package eu.kanade.presentation.browse.components
 
 import android.util.DisplayMetrics
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -21,8 +27,11 @@ import eu.kanade.tachiyomi.data.coil.InstalledSourceIcon
 import eu.kanade.tachiyomi.extension.model.Extension
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.roundedfilled.Dangerous
+import mihon.icons.materialsymbols.roundedfilled.MusicNote
 import mihon.icons.materialsymbols.roundedfilled.Warning
 import tachiyomi.domain.source.model.Source
+import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.source.local.isLocal
 
 private val defaultModifier = Modifier
@@ -68,6 +77,40 @@ fun ExtensionIcon(
     extension: Extension,
     modifier: Modifier = Modifier,
     density: Int = DisplayMetrics.DENSITY_DEFAULT,
+) {
+    if (!extension.hasAudio || extension is Extension.NotLoaded) {
+        ExtensionIconImage(extension, modifier, density)
+        return
+    }
+    Box(modifier = modifier) {
+        ExtensionIconImage(extension, Modifier.fillMaxSize(), density)
+        AudioBadge(modifier = Modifier.align(Alignment.BottomEnd))
+    }
+}
+
+/** Marks an extension whose sources can play background music. Translucent, so the icon stays readable. */
+@Composable
+private fun AudioBadge(modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .fillMaxSize(0.42f)
+            .background(Color.Black.copy(alpha = 0.45f), CircleShape),
+    ) {
+        Icon(
+            imageVector = MaterialSymbols.RoundedFilled.MusicNote,
+            contentDescription = stringResource(MR.strings.extension_has_audio),
+            tint = Color.White.copy(alpha = 0.9f),
+            modifier = Modifier.fillMaxSize(0.7f),
+        )
+    }
+}
+
+@Composable
+private fun ExtensionIconImage(
+    extension: Extension,
+    modifier: Modifier,
+    density: Int,
 ) {
     when (extension) {
         is Extension.Available -> {

@@ -15,6 +15,9 @@ sealed interface Extension {
     val lang: String?
     val contentWarning: ContentWarning
 
+    /** Whether its sources can attach background music to chapters. */
+    val hasAudio: Boolean
+
     /**
      * An extension whose apk is on the device, whether or not it ended up being loaded.
      */
@@ -61,6 +64,7 @@ sealed interface Extension {
         val apkUrl: String,
         val iconUrl: String,
         val store: ExtensionStore,
+        override val hasAudio: Boolean = false,
     ) : Extension {
 
         data class Source(
@@ -97,6 +101,7 @@ sealed interface Extension {
         override val hasUpdate: Boolean = false,
         val isObsolete: Boolean = false,
         override val store: ExtensionStore? = null,
+        override val hasAudio: Boolean = false,
     ) : Installed
 
     /**
@@ -115,6 +120,7 @@ sealed interface Extension {
         override val lang: String? = null,
         override val hasUpdate: Boolean = false,
         override val store: ExtensionStore? = null,
+        override val hasAudio: Boolean = false,
         val reason: Reason,
     ) : Installed {
 
