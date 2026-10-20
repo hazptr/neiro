@@ -11,7 +11,7 @@
   <style>
     :root { --accent: #2dd4bf; --accent-2: #f5b84b; --glow: rgba(45, 212, 191, 0.4); }
     .hero-icon { width: clamp(130px, 18vw, 200px); height: auto; }
-    main .grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    main .grid { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
     .steps .copy code { white-space: normal; word-break: break-all; }
     .steps .add-store { margin-top: 14px; padding: 11px 20px; transform: translateZ(30px); }
     .steps { counter-reset: step; }
