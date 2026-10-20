@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src=".github/assets/icon.svg" width="128" alt="Neiro icon">
+
 # Neiro
 
 ### Mihon, with background music
@@ -9,6 +11,8 @@ sources attach to a chapter. Everything else is Mihon, and
 regular extensions work unchanged.
 
 *Requires Android 8.0 or higher.*
+
+[hazptr.github.io/neiro](https://hazptr.github.io/neiro/)
 
 </div>
 

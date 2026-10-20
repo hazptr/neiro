@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neiro</title>
+  <meta name="description" content="Neiro is Mihon with background music for sources that provide it.">
+  <meta name="theme-color" content="#07090f">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/base.css">
+  <style>
+    :root { --accent: #2dd4bf; --accent-2: #f5b84b; --glow: rgba(45, 212, 191, 0.4); }
+    .hero-icon { width: clamp(130px, 18vw, 200px); height: auto; }
+    main .grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .steps .copy code { white-space: normal; word-break: break-all; }
+    .steps { counter-reset: step; }
+    .steps .card { padding-left: 76px; }
+    .steps .card::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #04120f;
+      font-weight: 900;
+      transform: translateZ(40px);
+    }
+    .steps .card .copy { margin-top: 14px; transform: translateZ(20px); }
+    .eq { display: inline-flex; gap: 3px; align-items: flex-end; height: 16px; }
+    .eq i { width: 3px; background: currentColor; border-radius: 2px; animation: eq 1s ease-in-out infinite; }
+    .eq i:nth-child(2) { animation-delay: -0.3s; }
+    .eq i:nth-child(3) { animation-delay: -0.6s; }
+    .eq i:nth-child(4) { animation-delay: -0.15s; }
+    @keyframes eq { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav class="nav">
+    <a class="brand" href="./"><img src="assets/icon.svg" alt="">Neiro</a>
+    <div class="links">
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="../neiro-extensions/">Extensions</a>
+      <a href="https://github.com/hazptr/neiro" class="hide-sm">GitHub</a>
+      <button type="button" class="sound-toggle" data-sound-toggle aria-pressed="false" title="Play a note when a bubble pops">♪ Sound</button>
+    </div>
+  </nav>
+
+  <header class="hero wrap">
+    <div>
+      <img class="hero-icon float" src="assets/icon.svg" alt="Neiro icon">
+      <h1>Neiro</h1>
+      <p class="lead">Mihon, with background music for sources that provide it. Everything else is Mihon, and your extensions keep working.</p>
+      <div class="actions">
+        <a class="btn primary" id="download" href="https://github.com/hazptr/neiro/releases/latest" data-magnetic>
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span id="download-label">Download</span>
+        </a>
+        <a class="btn" href="../neiro-extensions/" data-magnetic>Extension store</a>
+      </div>
+      <p class="hint">Android 8.0 or newer. Installs next to Mihon. Pop some bubbles while youre here.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="features">
+      <span class="eyebrow reveal">What it adds</span>
+      <h2 class="reveal">Music that comes with the chapter</h2>
+      <div class="grid">
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">♪</div>
+          <h3>Background music</h3>
+          <p>Each track plays over the pages its cued to, with a crossfade between tracks.</p>
+        </div>
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">◐</div>
+          <h3>Plays nice with other audio</h3>
+          <p>Whatever else is playing gets quieter instead of stopping.</p>
+        </div>
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">⤓</div>
+          <h3>Works offline</h3>
+          <p>Tracks get saved with downloaded chapters, so they play without a connection.</p>
+        </div>
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">⟲</div>
+          <h3>Mute and repeat</h3>
+          <p>Right in the reader menu, top right corner, whenever a chapter has music.</p>
+        </div>
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">⧉</div>
+          <h3>Your extensions</h3>
+          <p>Regular extensions work exactly like they do in Mihon.</p>
+        </div>
+        <div class="card reveal" data-tilt>
+          <div class="icon" aria-hidden="true">↻</div>
+          <h3>Updates itself</h3>
+          <p>New versions show up in the app with whats changed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="eyebrow reveal">Setup</span>
+      <h2 class="reveal">Three steps</h2>
+      <div class="grid steps">
+        <div class="card reveal" data-tilt="6">
+          <h3>Install Neiro</h3>
+          <p>Grab the APK from the latest release and open it.</p>
+        </div>
+        <div class="card reveal" data-tilt="6">
+          <h3>Add the extension store</h3>
+          <p>Settings, Browse, Extension stores. Extensions that play music have a note on their icon.</p>
+          <div class="copy" data-no-bubbles>
+            <code id="store-url">https://raw.githubusercontent.com/hazptr/neiro-extensions/repo/index.min.json</code>
+            <button type="button" data-copy="store-url">Copy</button>
+          </div>
+        </div>
+        <div class="card reveal" data-tilt="6">
+          <h3>Turn the music on</h3>
+          <p>In the reader settings, General, Play background music. Its off by default.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    Built on <a href="https://github.com/mihonapp/mihon">Mihon</a>, Apache-2.0.
+    Icon glyph from <a href="https://fonts.google.com/specimen/M+PLUS+Rounded+1c">M PLUS Rounded 1c</a> (OFL).
+    <br><a href="https://hazptr.github.io/">hazptr</a> · <a href="https://github.com/hazptr/neiro">Source</a>
+  </footer>
+
+  <script src="assets/bubbles.js"></script>
+  <script src="assets/fx.js"></script>
+  <script>
+    Bubbles.start({ palette: ['#2dd4bf', '#00897b', '#f5b84b', '#7dd3fc', '#a7f3d0'], glyphs: ['音', '♪', '♫'], density: 1 });
+
+    for (const button of document.querySelectorAll('[data-copy]')) {
+      button.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
+        button.textContent = 'Copied';
+        setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+      });
+    }
+
+    // Point the download button straight at the latest universal APK
+    fetch('https://api.github.com/repos/hazptr/neiro/releases/latest')
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((release) => {
+        const apk = release.assets.find((a) => a.name === `neiro-${release.tag_name}.apk`);
+        if (!apk) return;
+        document.getElementById('download').href = apk.browser_download_url;
+        document.getElementById('download-label').innerHTML = `Download <small>${release.tag_name}</small>`;
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>
