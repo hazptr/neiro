@@ -65,12 +65,11 @@ object WebViewUtil {
         return runCatching { context.packageManager.getPackageInfo(CHROME_PACKAGE, 0) }
             .recoverCatching { context.packageManager.getPackageInfo(SYSTEM_SETTINGS_PACKAGE, 0) }
             .recoverCatching { context.packageManager.getPackageInfo(YOUTUBE_FOR_TV_PACKAGE, 0) }
+            // A fixed name when none of those are installed: a random installed package would tell
+            // sites which apps are on the device
             .fold(
                 onSuccess = { it.packageName },
-                onFailure = {
-                    context.packageManager.getInstalledPackages(0)
-                        .random().packageName
-                },
+                onFailure = { CHROME_PACKAGE },
             )
     }
 }
