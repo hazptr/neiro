@@ -13,6 +13,10 @@ dependencyResolutionManagement {
         create("mihonx") {
             from(files("gradle/mihon.versions.toml"))
         }
+        // Neiro's own dependencies, kept out of Mihon's catalog
+        create("neiro") {
+            from(files("gradle/neiro.versions.toml"))
+        }
     }
 
     @Suppress("UnstableApiUsage")

@@ -1,0 +1,109 @@
+name: Neiro release
+on:
+  push:
+    tags:
+      - v*
+
+env:
+  MIHON_GITHUB_RELEASE: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    if: github.repository == 'hazptr/neiro'
+    name: Build and release
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-disabled: true
+
+      - name: Check the tag matches the version
+        run: |
+          set -e
+          tag="${GITHUB_REF_NAME}"
+          # Mihon's version from its line in app/build.gradle.kts, plus the Neiro release from neiro.properties
+          mihon=$(sed -n 's/^ *versionName = "\([0-9.]*\)"$/\1/p' app/build.gradle.kts | head -1)
+          release=$(sed -n 's/^release=\([0-9]*\)$/\1/p' neiro.properties)
+          version="$mihon.$release"
+          if [ "$tag" != "v$version" ]; then
+            echo "Tag $tag does not match versionName $version" >&2
+            exit 1
+          fi
+
+      - name: Release notes
+        run: |
+          set -e
+          version="${GITHUB_REF_NAME#v}"
+          # The section for this version: from its heading up to the next one
+          awk -v v="## $version" '$0 == v { found = 1; next } found && /^## / { exit } found' NEIRO_CHANGES.md \
+            | sed -e '/./,$!d' > notes.md
+          if [ ! -s notes.md ]; then
+            echo "NEIRO_CHANGES.md has no section for $version" >&2
+            exit 1
+          fi
+          cat notes.md
+
+      - name: Decode signing keystore
+        run: echo "$SIGNING_KEY" | base64 -d > "${{ runner.temp }}/neiro.keystore"
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+
+      - name: Build
+        run: ./gradlew assembleRelease -Pdist=github
+        env:
+          storeFile: ${{ runner.temp }}/neiro.keystore
+          storePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyAlias: ${{ secrets.ALIAS }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Rename APKs
+        run: |
+          set -e
+          out=app/build/outputs/apk/release
+          tag="${GITHUB_REF_NAME}"
+          mv "$out/app-universal-release.apk" "neiro-$tag.apk"
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
+            mv "$out/app-$abi-release.apk" "neiro-$abi-$tag.apk"
+          done
+          sha256sum neiro-*.apk > SHA256SUMS
+
+      - name: Assemble release body
+        run: |
+          set -e
+          {
+            cat notes.md
+            echo
+            # The app shows everything before the last <!--> as the changelog and drops the rest
+            echo '<!-->'
+            echo
+            echo '> [!TIP]'
+            echo '>'
+            echo "> ### If you are unsure which version to download then go with \`neiro-${GITHUB_REF_NAME}.apk\`"
+          } > release-body.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Neiro ${{ github.ref_name }}
+          body_path: release-body.md
+          files: |
+            neiro-*.apk
+            SHA256SUMS

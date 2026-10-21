@@ -1,0 +1,11 @@
+# Dependencies Neiro adds on top of Mihon's catalog (libs.versions.toml), kept separate so Mihon's edits merge cleanly
+[versions]
+media3 = "1.11.1"
+
+[libraries]
+media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+media3-datasourceOkhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
+media3-database = { module = "androidx.media3:media3-database", version.ref = "media3" }
+
+[bundles]
+media3 = ["media3-exoplayer", "media3-datasourceOkhttp", "media3-database"]

@@ -1,5 +1,6 @@
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.BuildConfigField
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import mihon.gradle.Config
 import mihon.gradle.getCurrentTime
 import mihon.gradle.getLatestCommitCount
@@ -21,22 +22,25 @@ plugins {
     alias(libs.plugins.apollo)
 }
 
+if (Config.includeTelemetry) {
+    pluginManager.apply {
+        apply(libs.plugins.google.services.get().pluginId)
+        apply(libs.plugins.firebase.crashlytics.get().pluginId)
+    }
+}
+
 val keystorePropertiesFile = layout.settingsDirectory.file("keystore.properties").asFile
 
 android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "app.neiro"
+        applicationId = "app.mihon"
 
-        // Neiro releases on top of a Mihon version: the fourth number counts Neiro releases on it,
-        // and versionCode keeps rising across Mihon bumps.
-        val neiroRelease = 11
-        versionCode = 38 * 100 + neiroRelease
-        versionName = "0.21.2.$neiroRelease"
+        versionCode = 38
+        versionName = "0.21.2"
 
-        // Neiro ships no telemetry; kept so Mihon's checks of it stay in place
-        buildConfigField("boolean", "TELEMETRY_INCLUDED", "false")
+        buildConfigField("boolean", "TELEMETRY_INCLUDED", "${Config.includeTelemetry}")
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -103,6 +107,14 @@ android {
             applicationIdSuffix = ".benchmark"
 
             matchingFallbacks.addAll(commonMatchingFallbacks)
+        }
+
+        if (Config.includeTelemetry) {
+            configureEach {
+                configure<CrashlyticsExtension> {
+                    mappingFileUploadEnabled = Config.uploadCrashlyticsMapping
+                }
+            }
         }
     }
 
@@ -245,7 +257,6 @@ dependencies {
 
     // Job scheduling
     implementation(libs.androidx.work)
-    implementation(libs.bundles.media3)
 
     // RxJava
     implementation(libs.rxJava)
@@ -439,4 +450,23 @@ androidComponents {
         // Layout Inspector's Compose tree
         it.packaging.resources.excludes.add("META-INF/*.version")
     }
+}
+
+// Neiro: the app's identity and version, layered on Mihon's. Kept in one block at the end of the file so
+// Mihon's own edits above, such as version bumps, merge without touching it.
+val neiroRelease = providers.fileContents(layout.settingsDirectory.file("neiro.properties")).asText.map { text ->
+    text.lineSequence().first { it.startsWith("release=") }.substringAfter('=').trim().toInt()
+}.get()
+
+android {
+    defaultConfig {
+        applicationId = "app.neiro"
+        // versionCode is Mihon's times 100 plus the Neiro release, so it keeps rising across Mihon bumps
+        versionCode = versionCode!! * 100 + neiroRelease
+        versionName = "$versionName.$neiroRelease"
+    }
+}
+
+dependencies {
+    implementation(neiro.bundles.media3)
 }
