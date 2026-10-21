@@ -151,7 +151,15 @@ class ChapterBgmPlayer(
                 Player.STATE_READY -> if (!fadedIn) {
                     fadedIn = true
                     cueMachine.onTrackSettled(id)
-                    scope.launch(Dispatchers.Main) { fade(exo, from = 0f, to = 1f, millis = FADE_IN_MS) }
+                    // Tracked with the mute's job so a mute (or unmute) during the fade-in replaces
+                    // it instead of two ramps writing the volume at once. Muted: setMuted(false)
+                    // fades in from the held volume.
+                    if (!muted) {
+                        muteJob?.cancel()
+                        muteJob = scope.launch(Dispatchers.Main) {
+                            fade(exo, from = exo.volume, to = 1f, millis = FADE_IN_MS)
+                        }
+                    }
                 }
                 // Only reached when not looping. A track that has run out otherwise holds a player
                 // and audio focus for the rest of its cue, which can be most of a scene. Clearing

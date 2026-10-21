@@ -128,7 +128,7 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
                 deferred = false
                 setLoading(null)
                 output.fadeOutAndRelease()
-            } else if (muted) {
+            } else if (this@BgmCueMachine.muted) {
                 // Leaving a track for another while muted drops the held one and owes the new one
                 if (activeId != track.id) {
                     activeId = null

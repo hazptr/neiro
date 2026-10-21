@@ -411,6 +411,22 @@ class BgmCueMachineTest {
         output.fadeOutCalls shouldBe released + 1
     }
 
+    @Test
+    fun `unmuting before a cue scrolled to while muted has settled still starts it`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        machine.page(trackA, muted = true)
+
+        machine.page(trackB, muted = true)
+        advanceTimeBy(SETTLE_MS / 2)
+        machine.page(trackB, muted = false)
+        advanceTimeBy(SETTLE_MS + 1)
+
+        output.startCalls shouldBe listOf("a", "b")
+    }
+
     private class FakeOutput : BgmCueMachine.Output<File> {
 
         val loadCalls = mutableListOf<String>()
