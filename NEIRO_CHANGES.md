@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.2.13
+- While a chapter's music is loading, a small spinner with a music note shows where the music controls sit, even with the reader menu hidden.
+
 ## 0.21.2.12
 - Reorganised Neiro's changes to stay out of Mihon's files, so new Mihon versions can be pulled in faster.
 
