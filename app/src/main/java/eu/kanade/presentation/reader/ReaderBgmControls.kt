@@ -1,10 +1,10 @@
 package eu.kanade.presentation.reader
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,8 +21,8 @@ private val ActiveTint = Color.White.copy(alpha = 0.9f)
 private val InactiveTint = Color.White.copy(alpha = 0.4f)
 
 /**
- * Background music controls that float over the pages. Translucent, so they stay out of the way
- * of the art underneath.
+ * Background music buttons, stacked. The translucent pane behind them is the caller's, so other
+ * rows (the loading spinner) can share it.
  */
 @Composable
 fun ReaderBgmControls(
@@ -32,32 +32,26 @@ fun ReaderBgmControls(
     onToggleLoop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier,
-        shape = CircleShape,
-        color = Color.Black.copy(alpha = 0.35f),
-    ) {
-        Column {
-            IconToggleButton(
-                checked = muted,
-                onCheckedChange = { onToggleMuted() },
-            ) {
-                Icon(
-                    imageVector = if (muted) MaterialSymbols.Rounded.VolumeOff else MaterialSymbols.Rounded.VolumeUp,
-                    contentDescription = stringResource(MR.strings.action_bgm_mute),
-                    tint = ActiveTint,
-                )
-            }
-            IconToggleButton(
-                checked = loop,
-                onCheckedChange = { onToggleLoop() },
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Rounded.Repeat,
-                    contentDescription = stringResource(MR.strings.pref_bgm_loop),
-                    tint = if (loop) ActiveTint else InactiveTint,
-                )
-            }
+    Column(modifier = modifier) {
+        IconToggleButton(
+            checked = muted,
+            onCheckedChange = { onToggleMuted() },
+        ) {
+            Icon(
+                imageVector = if (muted) MaterialSymbols.Rounded.VolumeOff else MaterialSymbols.Rounded.VolumeUp,
+                contentDescription = stringResource(MR.strings.action_bgm_mute),
+                tint = ActiveTint,
+            )
+        }
+        IconToggleButton(
+            checked = loop,
+            onCheckedChange = { onToggleLoop() },
+        ) {
+            Icon(
+                imageVector = MaterialSymbols.Rounded.Repeat,
+                contentDescription = stringResource(MR.strings.pref_bgm_loop),
+                tint = if (loop) ActiveTint else InactiveTint,
+            )
         }
     }
 }
@@ -66,6 +60,12 @@ fun ReaderBgmControls(
 @Composable
 private fun ReaderBgmControlsPreview() {
     TachiyomiPreviewTheme {
-        ReaderBgmControls(muted = false, loop = true, onToggleMuted = {}, onToggleLoop = {})
+        ReaderBgmControls(
+            muted = false,
+            loop = true,
+            onToggleMuted = {},
+            onToggleLoop = {},
+            modifier = Modifier.background(Color.Black.copy(alpha = 0.35f), CircleShape),
+        )
     }
 }
