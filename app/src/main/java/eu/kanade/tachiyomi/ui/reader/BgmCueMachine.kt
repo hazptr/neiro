@@ -5,6 +5,9 @@ import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -46,6 +49,18 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
 
     private var settleJob: Job? = null
 
+    private var loadingId: String? = null
+
+    /** The active track the player has reported audible; reset whenever a new one is committed. */
+    private var settledId: String? = null
+    private val mutableLoading = MutableStateFlow(false)
+
+    /**
+     * Whether the desired track is being obtained (fetched, extracted, prepared) but is not yet
+     * audible. Cleared on every exit: ready, failure, supersede, disable, reset.
+     */
+    val loading: StateFlow<Boolean> = mutableLoading.asStateFlow()
+
     /** Mirrors the user's preference; see [onPageChanged]. */
     private var loop = true
 
@@ -62,6 +77,7 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
                 settleJob?.cancel()
                 desiredId = null
                 activeId = null
+                setLoading(null)
                 output.fadeOutAndRelease()
             }
             return
@@ -70,12 +86,15 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
         if (track?.id == desiredId) return
 
         desiredId = track?.id
+        // A track that is no longer wanted stops counting as loading at once, not after the settle.
+        if (loadingId != desiredId) setLoading(null)
         settleJob?.cancel()
         settleJob = scope.launch {
             delay(SETTLE_MS)
             if (desiredId != track?.id) return@launch
             if (track == null) {
                 activeId = null
+                setLoading(null)
                 output.fadeOutAndRelease()
             } else {
                 commit(track, source)
@@ -84,9 +103,15 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
     }
 
     private suspend fun commit(track: AudioTrack, source: HttpSource?) {
-        if (activeId == track.id) return
+        if (activeId == track.id) {
+            // Back on a track that was left mid-load: it is still preparing, so loading resumes
+            if (settledId != track.id) setLoading(track.id)
+            return
+        }
         output.fadeOutAndRelease()
         activeId = track.id
+        settledId = null
+        setLoading(track.id)
         // Tracks whether this call actually handed the track off to the player, so every other
         // exit - cancellation, being superseded, start() failing - clears activeId instead of
         // leaving it pointed at a track that will never play and can never be retried.
@@ -97,6 +122,7 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
             started = output.start(item, track.id, loop)
         } finally {
             if (!started && activeId == track.id) activeId = null
+            if (!started) clearLoading(track.id)
         }
     }
 
@@ -106,10 +132,27 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
         settleJob = null
         desiredId = null
         activeId = null
+        setLoading(null)
+    }
+
+    /** The player reached a state where [id] is audible, or never will be: loading is over. */
+    fun onTrackSettled(id: String) {
+        if (activeId == id) settledId = id
+        clearLoading(id)
+    }
+
+    private fun clearLoading(id: String) {
+        if (loadingId == id) setLoading(null)
+    }
+
+    private fun setLoading(id: String?) {
+        loadingId = id
+        mutableLoading.value = id != null
     }
 
     /** The active track finished on its own (not looping); lets it be retried if revisited. */
     fun onPlaybackEnded(id: String) {
         if (activeId == id) activeId = null
+        clearLoading(id)
     }
 }

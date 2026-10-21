@@ -52,6 +52,9 @@ class ChapterBgmPlayer(
 
     private var player: ExoPlayer? = null
 
+    /** True from the moment a track is wanted until it is audible or has failed. */
+    val loading get() = cueMachine.loading
+
     /** Intent to be paused, independent of whether a player currently exists or is playing. */
     private var pausedByLifecycle = false
 
@@ -140,6 +143,7 @@ class ChapterBgmPlayer(
             when (playbackState) {
                 Player.STATE_READY -> if (!fadedIn) {
                     fadedIn = true
+                    cueMachine.onTrackSettled(id)
                     scope.launch(Dispatchers.Main) { fade(exo, from = 0f, to = 1f, millis = FADE_IN_MS) }
                 }
                 // Only reached when not looping. A track that has run out otherwise holds a player

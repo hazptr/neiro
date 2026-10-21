@@ -7,10 +7,12 @@ import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import tachiyomi.core.common.preference.toggle
 import tachiyomi.core.common.util.system.logcat
@@ -39,6 +41,9 @@ class ReaderBgmController(
     val state = mutableState.asStateFlow()
 
     private val player = ChapterBgmPlayer(scope, context, support.bgmCache)
+
+    /** Whether the loading spinner should show: music is loading and has been for a moment. */
+    val loadingSpinner = player.loading.spinnerVisible().stateIn(scope, SharingStarted.Eagerly, false)
 
     /** Mirrored so the webtoon viewer's scroll listener can skip its audio work without reading a preference. */
     @Volatile

@@ -49,7 +49,8 @@ The changes inside Mihon's files, so a conflict is quick to place:
 - **Background music:** hooks in `ReaderViewModel`, `ReaderActivity`, `WebtoonViewer`, `ChapterLoader`,
   `HttpPageLoader`, `DownloadPageLoader`, `Downloader`; the API on `Page` (`source-api`) and the
   `ReaderPage.name` field; the preferences and their settings rows; the keep rules in
-  `source-api/consumer-proguard.pro`.
+  `source-api/consumer-proguard.pro`; the `bgm_*`, `pref_bgm_*`, `action_bgm_*` and `extension_has_audio`
+  strings in `i18n/src/commonMain/moko-resources/base/strings.xml`.
 - **Extension music badge:** `Extension.hasAudio`, read in `ExtensionLoader` and
   `NetworkLegacyExtension`, drawn by `ExtensionIcon` through `neiro.ui.AudioBadgeBox`.
 - **Identity:** the end of `app/build.gradle.kts`, the launcher icons and logo drawables, `app_name`,
