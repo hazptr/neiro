@@ -84,11 +84,10 @@ class ReaderBgmController(
         val enabled = readerPreferences.bgmEnabled.get()
         val audio = page.chapter.pages?.firstNotNullOfOrNull { it.chapterAudio }
         mutableState.update { it.copy(available = enabled && audio != null) }
-        // Muting goes through the same path as turning audio off, so a muted reader holds no
-        // player and no audio focus, and unmuting starts the track that covers the current page.
-        val playing = enabled && !state.value.muted
-        val track = if (playing) audio?.trackAt(page.index) else null
-        player.onPageChanged(track, source(), playing, readerPreferences.bgmLoop.get())
+        // Muting pauses the track and gives up audio focus; the cue is still followed, so unmuting
+        // plays on from where it stopped, or starts the track the reader has since scrolled to.
+        val track = if (enabled) audio?.trackAt(page.index) else null
+        player.onPageChanged(track, source(), enabled, readerPreferences.bgmLoop.get(), state.value.muted)
     }
 
     /** From the webtoon viewer's scroll listener, which reports the same top page many times over. */

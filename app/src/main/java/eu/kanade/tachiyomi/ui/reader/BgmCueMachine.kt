@@ -39,6 +39,12 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
 
         /** Fades out and releases whatever is currently playing, if anything. */
         fun fadeOutAndRelease()
+
+        /**
+         * Fades out and pauses whatever is playing, keeping its position, or resumes it. Only
+         * called when [muted] actually changes.
+         */
+        fun setMuted(muted: Boolean)
     }
 
     /** What should be playing once the current cue settles. Compared against to debounce. */
@@ -64,10 +70,33 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
     /** Mirrors the user's preference; see [onPageChanged]. */
     private var loop = true
 
-    fun onPageChanged(track: AudioTrack?, source: HttpSource?, enabled: Boolean, loop: Boolean) {
+    /** Mirrors the session's mute; see [onPageChanged]. */
+    private var muted = false
+
+    /** A start was held back because of the mute, and is owed when it is lifted. */
+    private var deferred = false
+
+    /**
+     * [muted] pauses instead of tearing down: the cue is still followed, so unmuting resumes the
+     * track where it stopped, or starts the one the reader has since scrolled to. Nothing starts
+     * while muted.
+     */
+    fun onPageChanged(
+        track: AudioTrack?,
+        source: HttpSource?,
+        enabled: Boolean,
+        loop: Boolean,
+        muted: Boolean = false,
+    ) {
         if (loop != this.loop) {
             this.loop = loop
             output.setLooping(loop)
+        }
+        val unmuting = this.muted && !muted
+        if (muted != this.muted) {
+            this.muted = muted
+            if (muted) setLoading(null)
+            output.setMuted(muted)
         }
 
         // Turning the preference off is a deliberate action, not a scroll artifact, so it skips
@@ -77,13 +106,15 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
                 settleJob?.cancel()
                 desiredId = null
                 activeId = null
+                deferred = false
                 setLoading(null)
                 output.fadeOutAndRelease()
             }
             return
         }
 
-        if (track?.id == desiredId) return
+        // Unmuting is the one time the same cue has to act again: its start was held back
+        if (track?.id == desiredId && !(unmuting && deferred)) return
 
         desiredId = track?.id
         // A track that is no longer wanted stops counting as loading at once, not after the settle.
@@ -94,9 +125,19 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
             if (desiredId != track?.id) return@launch
             if (track == null) {
                 activeId = null
+                deferred = false
                 setLoading(null)
                 output.fadeOutAndRelease()
+            } else if (muted) {
+                // Leaving a track for another while muted drops the held one and owes the new one
+                if (activeId != track.id) {
+                    activeId = null
+                    deferred = true
+                    setLoading(null)
+                    output.fadeOutAndRelease()
+                }
             } else {
+                deferred = false
                 commit(track, source)
             }
         }
@@ -119,6 +160,10 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
         try {
             val item = output.load(track, source) ?: return
             if (desiredId != track.id) return
+            if (muted) {
+                deferred = true
+                return
+            }
             started = output.start(item, track.id, loop)
         } finally {
             if (!started && activeId == track.id) activeId = null
@@ -132,6 +177,7 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
         settleJob = null
         desiredId = null
         activeId = null
+        deferred = false
         setLoading(null)
     }
 

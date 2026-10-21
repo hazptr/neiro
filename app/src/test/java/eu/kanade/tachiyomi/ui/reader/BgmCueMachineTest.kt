@@ -271,6 +271,146 @@ class BgmCueMachineTest {
     }
 
     /** Records every command the machine emits; fetches resolve immediately unless queued. */
+    private fun BgmCueMachine<File>.page(track: AudioTrack?, muted: Boolean = false) =
+        onPageChanged(track, source = null, enabled = true, loop = true, muted = muted)
+
+    @Test
+    fun `muting a playing track pauses it in place instead of releasing it`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        val released = output.fadeOutCalls
+
+        machine.page(trackA, muted = true)
+        advanceTimeBy(SETTLE_MS * 4)
+
+        output.muteCalls shouldBe listOf(true)
+        output.fadeOutCalls shouldBe released
+        output.startCalls shouldBe listOf("a")
+    }
+
+    @Test
+    fun `unmuting the same cue resumes the held track without restarting it`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        val released = output.fadeOutCalls
+        machine.page(trackA, muted = true)
+        advanceTimeBy(SETTLE_MS * 2)
+
+        machine.page(trackA, muted = false)
+        advanceTimeBy(SETTLE_MS * 4)
+
+        output.muteCalls shouldBe listOf(true, false)
+        output.startCalls shouldBe listOf("a")
+        output.fadeOutCalls shouldBe released
+    }
+
+    @Test
+    fun `muting during the settle window starts nothing, unmuting starts the cue`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS / 2)
+        machine.page(trackA, muted = true)
+        advanceTimeBy(SETTLE_MS * 4)
+
+        output.startCalls shouldBe emptyList()
+
+        machine.page(trackA, muted = false)
+        advanceTimeBy(SETTLE_MS + 1)
+        output.startCalls shouldBe listOf("a")
+    }
+
+    @Test
+    fun `muting while a track is loading never starts it, unmuting does`() = runTest {
+        val output = FakeOutput()
+        val load = CompletableDeferred<File?>()
+        output.pendingLoads["a"] = load
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        machine.loading.value shouldBe true
+
+        machine.page(trackA, muted = true)
+        machine.loading.value shouldBe false
+        load.complete(File("/a"))
+        advanceUntilIdle()
+        output.startCalls shouldBe emptyList()
+
+        output.pendingLoads.clear()
+        machine.page(trackA, muted = false)
+        advanceUntilIdle()
+        output.startCalls shouldBe listOf("a")
+    }
+
+    @Test
+    fun `scrolling to another cue while muted drops the held track and starts the new one on unmute`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        val released = output.fadeOutCalls
+        machine.page(trackA, muted = true)
+
+        machine.page(trackB, muted = true)
+        advanceTimeBy(SETTLE_MS + 1)
+        output.fadeOutCalls shouldBe released + 1
+        output.startCalls shouldBe listOf("a")
+
+        machine.page(trackB, muted = false)
+        advanceTimeBy(SETTLE_MS + 1)
+        output.startCalls shouldBe listOf("a", "b")
+    }
+
+    @Test
+    fun `scrolling out of every cue while muted releases the held track`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        val released = output.fadeOutCalls
+        machine.page(trackA, muted = true)
+
+        machine.page(null, muted = true)
+        advanceTimeBy(SETTLE_MS + 1)
+        output.fadeOutCalls shouldBe released + 1
+
+        machine.page(null, muted = false)
+        advanceTimeBy(SETTLE_MS * 4)
+        output.startCalls shouldBe listOf("a")
+    }
+
+    @Test
+    fun `the mute is forwarded only when it changes`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        machine.page(trackA)
+        machine.page(trackA, muted = true)
+        machine.page(trackA, muted = true)
+        machine.page(trackA, muted = false)
+        advanceUntilIdle()
+
+        output.muteCalls shouldBe listOf(true, false)
+    }
+
+    @Test
+    fun `disabling while muted tears the track down`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        val released = output.fadeOutCalls
+        machine.page(trackA, muted = true)
+
+        machine.onPageChanged(trackA, source = null, enabled = false, loop = true, muted = true)
+
+        output.fadeOutCalls shouldBe released + 1
+    }
+
     private class FakeOutput : BgmCueMachine.Output<File> {
 
         val loadCalls = mutableListOf<String>()
@@ -296,6 +436,12 @@ class BgmCueMachineTest {
 
         override fun fadeOutAndRelease() {
             fadeOutCalls++
+        }
+
+        val muteCalls = mutableListOf<Boolean>()
+
+        override fun setMuted(muted: Boolean) {
+            muteCalls += muted
         }
     }
 }

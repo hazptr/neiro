@@ -21,6 +21,7 @@ import eu.kanade.tachiyomi.source.model.AudioTrack
 import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +59,10 @@ class ChapterBgmPlayer(
     /** Intent to be paused, independent of whether a player currently exists or is playing. */
     private var pausedByLifecycle = false
 
+    /** The session's mute: the current player is paused, and none is started until it is lifted. */
+    private var muted = false
+    private var muteJob: Job? = null
+
     /**
      * Requested by hand rather than through ExoPlayer, which takes full focus for music and so
      * pauses whatever else is playing. Background music should duck other audio, not stop it.
@@ -74,7 +79,7 @@ class ChapterBgmPlayer(
                 when (change) {
                     AudioManager.AUDIOFOCUS_LOSS -> stop()
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> player?.pause()
-                    AudioManager.AUDIOFOCUS_GAIN -> if (!pausedByLifecycle) player?.play()
+                    AudioManager.AUDIOFOCUS_GAIN -> if (!pausedByLifecycle && !muted) player?.play()
                 }
             }
             .build()
@@ -85,8 +90,8 @@ class ChapterBgmPlayer(
         .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
         .build()
 
-    fun onPageChanged(track: AudioTrack?, source: HttpSource?, enabled: Boolean, loop: Boolean) =
-        cueMachine.onPageChanged(track, source, enabled, loop)
+    fun onPageChanged(track: AudioTrack?, source: HttpSource?, enabled: Boolean, loop: Boolean, muted: Boolean) =
+        cueMachine.onPageChanged(track, source, enabled, loop, muted)
 
     /**
      * Downloaded tracks are plain files or document uris and are read directly. Everything else
@@ -116,6 +121,8 @@ class ChapterBgmPlayer(
 
     override suspend fun start(item: MediaSource, id: String, loop: Boolean): Boolean =
         withContext(Dispatchers.Main) {
+            // Muted between the cue machine's check and here
+            if (muted) return@withContext false
             if (!requestFocus()) {
                 logcat(LogPriority.WARN) { "[BGM] audio focus denied for $id" }
                 return@withContext false
@@ -152,6 +159,7 @@ class ChapterBgmPlayer(
                 // back; staying put does not restart it.
                 Player.STATE_ENDED -> {
                     player = null
+                    muteJob?.cancel()
                     cueMachine.onPlaybackEnded(id)
                     exo.release()
                     abandonFocus()
@@ -170,6 +178,30 @@ class ChapterBgmPlayer(
         }
     }
 
+    /**
+     * Mute pauses rather than releases: the track fades out, then pauses where it is and gives up
+     * audio focus, and unmuting plays on from there. Nothing can start while muted, see [start].
+     */
+    override fun setMuted(muted: Boolean) {
+        if (this.muted == muted) return
+        this.muted = muted
+        muteJob?.cancel()
+        val exo = player ?: return
+        muteJob = scope.launch(Dispatchers.Main) {
+            if (muted) {
+                fade(exo, from = exo.volume, to = 0f, millis = FADE_OUT_MS)
+                exo.pause()
+                abandonFocus()
+            } else {
+                if (!pausedByLifecycle) {
+                    if (!requestFocus()) return@launch
+                    exo.play()
+                }
+                fade(exo, from = exo.volume, to = 1f, millis = FADE_IN_MS)
+            }
+        }
+    }
+
     override fun setLooping(loop: Boolean) {
         player?.repeatMode = if (loop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
     }
@@ -181,6 +213,7 @@ class ChapterBgmPlayer(
     override fun fadeOutAndRelease() {
         val exo = player ?: return
         player = null
+        muteJob?.cancel()
         scope.launch(Dispatchers.Main) {
             try {
                 fade(exo, from = exo.volume, to = 0f, millis = FADE_OUT_MS)
@@ -201,7 +234,7 @@ class ChapterBgmPlayer(
         val stepDelay = millis / FADE_STEPS
         for (i in 1..FADE_STEPS) {
             // A fade-in yields to the fade-out of a player that has since been superseded
-            if (to > from && player !== exo) return
+            if (to > from && (player !== exo || muted)) return
             exo.volume = from + (to - from) * (i / FADE_STEPS.toFloat())
             delay(stepDelay)
         }
@@ -215,12 +248,13 @@ class ChapterBgmPlayer(
     fun resume() {
         if (!pausedByLifecycle) return
         pausedByLifecycle = false
-        if (requestFocus()) player?.play()
+        if (!muted && requestFocus()) player?.play()
     }
 
     /** Immediate teardown, for audio-focus loss and reader exit. No fade: the scope may be dying. */
     fun stop() {
         cueMachine.reset()
+        muteJob?.cancel()
         player?.release()
         player = null
         pausedByLifecycle = false
