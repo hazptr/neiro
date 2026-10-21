@@ -54,7 +54,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import logcat.AndroidLogcatLogger
 import logcat.LogPriority
 import logcat.LogcatLogger
@@ -65,6 +64,7 @@ import mihon.core.metro.GraphProvider
 import mihon.core.migration.Migration
 import mihon.core.migration.Migrator
 import mihon.telemetry.TelemetryConfig
+import neiro.app.NeiroStartup
 import org.conscrypt.Conscrypt
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.preference.Preference
@@ -208,35 +208,16 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         logcat {
             "Migration from ${preference.get()} to ${BuildConfig.VERSION_CODE} with ${migrations.size} migration(s)"
         }
-        clearStalePageLists(previousVersionCode = preference.get())
+        NeiroStartup.clearStalePageLists(preferenceStore, { graph.chapterCache }, scope, preference.get())
         Migrator.initialize(
-            // Mihon's migrations are numbered by Mihon's version codes, which Neiro's multiply by 100
-            old = preference.get().toMihonVersionCode(),
-            new = BuildConfig.VERSION_CODE.toMihonVersionCode(),
+            old = NeiroStartup.toMihonVersionCode(preference.get()),
+            new = NeiroStartup.toMihonVersionCode(BuildConfig.VERSION_CODE),
             migrations = migrations.toList(),
             onMigrationComplete = {
                 logcat { "Updating last version to ${BuildConfig.VERSION_CODE}" }
                 preference.set(BuildConfig.VERSION_CODE)
             },
         )
-    }
-
-    private fun Int.toMihonVersionCode(): Int = if (this >= NEIRO_VERSION_SCALE) this / NEIRO_VERSION_SCALE else this
-
-    /**
-     * Drops page lists cached by builds that could not attach source audio to them: a chapter read
-     * on one of those would otherwise stay silent until its cache entry expired. Bump
-     * [PAGE_LIST_EPOCH] whenever a fix changes what a cached page list should contain.
-     */
-    private fun clearStalePageLists(previousVersionCode: Int) {
-        val epoch = preferenceStore.getInt(Preference.appStateKey("neiro_page_list_epoch"), 0)
-        if (epoch.get() >= PAGE_LIST_EPOCH) return
-        epoch.set(PAGE_LIST_EPOCH)
-        if (previousVersionCode == 0) return
-        scope.launch(Dispatchers.IO) {
-            val deleted = graph.chapterCache.clear()
-            logcat { "Cleared $deleted cached chapter files from before page list epoch $PAGE_LIST_EPOCH" }
-        }
     }
 
     override fun newImageLoader(context: Context): ImageLoader {
@@ -342,9 +323,3 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 }
 
 private const val ACTION_DISABLE_INCOGNITO_MODE = "tachi.action.DISABLE_INCOGNITO_MODE"
-
-/** Neiro's version code is Mihon's times this, plus the Neiro release on top of that Mihon version. */
-private const val NEIRO_VERSION_SCALE = 100
-
-/** Raised when cached page lists from older builds are known to be wrong; see clearStalePageLists. */
-private const val PAGE_LIST_EPOCH = 1
