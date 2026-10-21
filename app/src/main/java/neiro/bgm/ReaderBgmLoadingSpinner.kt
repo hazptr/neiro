@@ -8,6 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.roundedfilled.MusicNote
@@ -17,22 +21,29 @@ import tachiyomi.presentation.core.i18n.stringResource
 /** A button-sized spinner row for the music pane while a track loads. No background of its own. */
 @Composable
 fun ReaderBgmLoadingSpinner(modifier: Modifier = Modifier) {
-    // A plain Box, no Surface or clickable: it never consumes touches
+    val description = stringResource(MR.strings.bgm_loading)
+    // A plain Box, no Surface or clickable: it never consumes touches. The description sits on the Box
+    // itself, merged over its children, so it is one node whichever pane the Box is in.
     Box(
-        modifier = modifier.size(48.dp),
+        modifier = modifier
+            .size(48.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = description
+                liveRegion = LiveRegionMode.Polite
+            },
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(32.dp),
-            color = Color.White.copy(alpha = 0.9f),
+            color = ReaderBgmColors.Active,
             trackColor = Color.Transparent,
             strokeWidth = 2.dp,
         )
         Icon(
             imageVector = MaterialSymbols.RoundedFilled.MusicNote,
-            contentDescription = stringResource(MR.strings.bgm_loading),
+            contentDescription = null,
             modifier = Modifier.size(16.dp),
-            tint = Color.White.copy(alpha = 0.9f),
+            tint = ReaderBgmColors.Active,
         )
     }
 }

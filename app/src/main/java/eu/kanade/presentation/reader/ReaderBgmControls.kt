@@ -1,24 +1,23 @@
 package eu.kanade.presentation.reader
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Repeat
 import mihon.icons.materialsymbols.rounded.VolumeOff
 import mihon.icons.materialsymbols.rounded.VolumeUp
+import neiro.bgm.ReaderBgmColors
+import neiro.bgm.readerBgmPane
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 
-private val ActiveTint = Color.White.copy(alpha = 0.9f)
-private val InactiveTint = Color.White.copy(alpha = 0.4f)
+private val ActiveTint = ReaderBgmColors.Active
+private val InactiveTint = ReaderBgmColors.Inactive
 
 /**
  * Background music buttons, stacked. The translucent pane behind them is the caller's, so other
@@ -65,7 +64,7 @@ private fun ReaderBgmControlsPreview() {
             loop = true,
             onToggleMuted = {},
             onToggleLoop = {},
-            modifier = Modifier.background(Color.Black.copy(alpha = 0.35f), CircleShape),
+            modifier = Modifier.readerBgmPane { 1f },
         )
     }
 }
