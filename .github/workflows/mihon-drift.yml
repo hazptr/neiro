@@ -1,0 +1,46 @@
+name: Mihon drift
+# Test-merges Mihon's main branch into Neiro and lists the files that would conflict, so a conflict
+# shows up before the next Mihon release has to be merged. Nothing is pushed.
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    if: github.repository == 'hazptr/neiro'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Test-merge Mihon
+        run: |
+          set -e
+          git config user.name "neiro-drift"
+          git config user.email "neiro-drift@users.noreply.github.com"
+          git remote add mihon https://github.com/mihonapp/mihon.git
+          git fetch --quiet mihon main
+          behind=$(git rev-list --count HEAD..mihon/main)
+          {
+            echo "## Mihon drift"
+            echo
+            echo "Neiro is **$behind** commits behind Mihon's main branch."
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          if git merge --no-commit --no-ff mihon/main >/dev/null 2>&1; then
+            echo "Merges cleanly." >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "Merging would conflict in:"
+              echo
+              git diff --name-only --diff-filter=U | sed 's/^/- `/; s/$/`/'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Merging Mihon's main branch would conflict; see the run summary"
+            exit 1
+          fi
