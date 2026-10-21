@@ -25,7 +25,6 @@ import eu.kanade.domain.manga.model.readingMode
 import eu.kanade.domain.source.interactor.GetIncognitoState
 import eu.kanade.domain.track.interactor.TrackChapter
 import eu.kanade.domain.track.service.TrackPreferences
-import eu.kanade.tachiyomi.data.cache.BgmCache
 import eu.kanade.tachiyomi.data.cache.ChapterCache
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.download.DownloadCache
@@ -67,12 +66,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -80,9 +77,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import logcat.LogPriority
 import mihon.core.metro.AppCoroutineScope
+import neiro.bgm.ChapterAudioSupport
+import neiro.bgm.ReaderBgmController
 import tachiyomi.core.common.preference.toggle
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.chapter.interactor.GetChaptersByMangaId
@@ -134,8 +132,7 @@ class ReaderViewModel(
     private val coverCache: CoverCache,
     private val chapterCache: ChapterCache,
     private val downloadCache: DownloadCache,
-    private val bgmCache: BgmCache,
-    private val json: Json,
+    private val chapterAudio: ChapterAudioSupport,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -307,10 +304,6 @@ class ReaderViewModel(
     private val downloadAheadAmount = downloadPreferences.autoDownloadWhileReading.get()
 
     init {
-        merge(readerPreferences.bgmEnabled.changes().drop(1), readerPreferences.bgmLoop.changes().drop(1))
-            .onEach { lastBgmPage?.let(::onBgmPageChanged) }
-            .launchIn(viewModelScope)
-
         // To save state
         state.map { it.viewerChapters?.currChapter }
             .distinctUntilChanged()
@@ -331,64 +324,11 @@ class ReaderViewModel(
         }
     }
 
-    /** Plays source-provided background music. */
-    val bgmPlayer = ChapterBgmPlayer(viewModelScope, context, bgmCache)
-
-    /**
-     * Last page reported to [bgmPlayer], so flipping the preference can take effect where the
-     * reader already is instead of waiting for the next page change.
-     */
-    private var lastBgmPage: ReaderPage? = null
-    private var loggedAudioForChapter: Long? = null
-
-    /** One line per chapter: without it, a chapter that simply has no cues is indistinguishable
-     *  from a chapter whose audio failed to resolve. */
-    private fun logChapterAudio(page: ReaderPage) {
-        val chapterId = page.chapter.chapter.id
-        if (chapterId == loggedAudioForChapter) return
-        loggedAudioForChapter = chapterId
-        val audio = page.chapter.pages?.firstNotNullOfOrNull { it.chapterAudio }
-        logcat {
-            if (audio == null) {
-                "[BGM] no audio for ${page.chapter.chapter.name}"
-            } else {
-                "[BGM] ${page.chapter.chapter.name}: ${audio.tracks.size} tracks, ${audio.cues.size} cues"
-            }
-        }
-    }
-
-    /**
-     * Called with the page whose audio should currently be playing.
-     *
-     * Deliberately separate from [onPageSelected]: reading progress tracks the bottom-most
-     * visible page, but a source's audio cues are anchored to the image at the top of the
-     * viewport - which is how the site itself triggers them. On a tall webtoon strip those are
-     * over a page apart, and using the wrong one makes every cue fire early.
-     */
-    fun onBgmPageChanged(page: ReaderPage) {
-        lastBgmPage = page
-        logChapterAudio(page)
-        val enabled = readerPreferences.bgmEnabled.get()
-        val audio = page.chapter.pages?.firstNotNullOfOrNull { it.chapterAudio }
-        mutableState.update { it.copy(bgmAvailable = enabled && audio != null) }
-        // Muting goes through the same path as turning audio off, so a muted reader holds no
-        // player and no audio focus, and unmuting starts the track that covers the current page.
-        val playing = enabled && !state.value.bgmMuted
-        val track = if (playing) audio?.trackAt(page.index) else null
-        bgmPlayer.onPageChanged(track, getSource(), playing, readerPreferences.bgmLoop.get())
-    }
-
-    fun toggleBgmMuted() {
-        mutableState.update { it.copy(bgmMuted = !it.bgmMuted) }
-        lastBgmPage?.let(::onBgmPageChanged)
-    }
-
-    fun toggleBgmLoop() {
-        readerPreferences.bgmLoop.toggle()
-    }
+    /** Background music for this reader session. */
+    val bgm = ReaderBgmController(viewModelScope, context, chapterAudio, readerPreferences, ::getSource)
 
     override fun onCleared() {
-        bgmPlayer.stop()
+        bgm.stop()
         val currentChapters = state.value.viewerChapters
         if (currentChapters != null) {
             currentChapters.unref()
@@ -426,9 +366,7 @@ class ReaderViewModel(
                     downloadManager,
                     downloadProvider,
                     chapterCache,
-                    bgmCache,
-                    readerPreferences,
-                    json,
+                    chapterAudio,
                     appScope,
                     ::canLoadAhead,
                     manga,
@@ -615,11 +553,8 @@ class ReaderViewModel(
             return
         }
 
-        // The webtoon viewer drives bgm itself, from the top of the viewport rather than the
-        // bottom-most visible page this callback reports. See onBgmPageChanged.
-        if (state.value.viewer !is WebtoonViewer) {
-            onBgmPageChanged(page)
-        }
+        // The webtoon viewer reports the top of the viewport to bgm itself, see ReaderBgmController
+        if (state.value.viewer !is WebtoonViewer) bgm.onPageChanged(page)
 
         val selectedChapter = page.chapter
         val pages = selectedChapter.pages ?: return
@@ -1195,12 +1130,6 @@ class ReaderViewModel(
         val dialog: Dialog? = null,
         val menuVisible: Boolean = false,
         @IntRange(from = -100, to = 100) val brightnessOverlayValue: Int = 0,
-
-        /** Whether the current chapter has background music the reader would play. */
-        val bgmAvailable: Boolean = false,
-
-        /** Silences background music for this reading session only. */
-        val bgmMuted: Boolean = false,
     ) {
         val currentChapter: ReaderChapter?
             get() = viewerChapters?.currChapter

@@ -20,17 +20,11 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -54,7 +48,6 @@ import dev.zacsweers.metro.Inject
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.presentation.reader.DisplayRefreshHost
 import eu.kanade.presentation.reader.OrientationSelectDialog
-import eu.kanade.presentation.reader.ReaderBgmControls
 import eu.kanade.presentation.reader.ReaderContentOverlay
 import eu.kanade.presentation.reader.ReaderPageActionsDialog
 import eu.kanade.presentation.reader.ReaderPageIndicator
@@ -101,6 +94,7 @@ import kotlinx.coroutines.launch
 import logcat.LogPriority
 import mihon.app.di.AppGraph
 import mihon.core.metro.metroGraph
+import neiro.bgm.ReaderBgmOverlay
 import tachiyomi.core.common.Constants
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.system.logcat
@@ -279,26 +273,7 @@ class ReaderActivity : BaseActivity() {
 
             AppBars(state = state)
 
-            // Part of the reader menu: shown and hidden with it, just below its top bar
-            AnimatedVisibility(
-                visible = state.bgmAvailable && state.menuVisible,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .displayCutoutPadding()
-                    .padding(top = 64.dp)
-                    .padding(8.dp),
-            ) {
-                val bgmLoop by readerPreferences.bgmLoop.collectAsState()
-                ReaderBgmControls(
-                    muted = state.bgmMuted,
-                    loop = bgmLoop,
-                    onToggleMuted = viewModel::toggleBgmMuted,
-                    onToggleLoop = viewModel::toggleBgmLoop,
-                )
-            }
+            ReaderBgmOverlay(viewModel.bgm, state.menuVisible, readerPreferences)
         }
 
         val onDismissRequest = viewModel::closeDialog
@@ -373,7 +348,7 @@ class ReaderActivity : BaseActivity() {
 
     override fun onPause() {
         viewModel.saveHistory()
-        viewModel.bgmPlayer.pause()
+        viewModel.bgm.pause()
         super.onPause()
     }
 
@@ -384,7 +359,7 @@ class ReaderActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.restartReadTimer()
-        viewModel.bgmPlayer.resume()
+        viewModel.bgm.resume()
         setMenuVisibility(viewModel.state.value.menuVisible)
     }
 
@@ -718,11 +693,6 @@ class ReaderActivity : BaseActivity() {
      */
     fun onPageSelected(page: ReaderPage) {
         viewModel.onPageSelected(page)
-    }
-
-    /** Called from the viewer when the page that background music should follow changes. */
-    fun onBgmPageChanged(page: ReaderPage) {
-        viewModel.onBgmPageChanged(page)
     }
 
     /**
