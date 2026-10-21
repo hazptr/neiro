@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src=".github/assets/icon.svg" width="128" alt="Neiro icon">
+<img src="assets/icon.svg" width="128" alt="Neiro icon">
 
 # Neiro
 
