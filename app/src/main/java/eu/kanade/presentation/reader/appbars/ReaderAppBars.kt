@@ -37,6 +37,7 @@ import eu.kanade.presentation.reader.components.ChapterNavigator
 import eu.kanade.presentation.reader.components.ChapterNavigatorType
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
 import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
+import neiro.bgm.readerBgmBarAnchor
 import tachiyomi.presentation.core.components.material.padding
 
 private val readerBarsSlideAnimationSpec = tween<IntOffset>(200)
@@ -88,7 +89,8 @@ fun ReaderAppBars(
             ReaderTopBar(
                 modifier = Modifier
                     .background(backgroundColor)
-                    .clickable(onClick = onClickTopAppBar),
+                    .clickable(onClick = onClickTopAppBar)
+                    .readerBgmBarAnchor(),
                 mangaTitle = mangaTitle,
                 chapterTitle = chapterTitle,
                 navigateUp = navigateUp,
