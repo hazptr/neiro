@@ -96,6 +96,11 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
         if (muted != this.muted) {
             this.muted = muted
             if (muted) setLoading(null)
+            // Muting cleared the spinner but not the fetch: if the wanted track is still on its way
+            // (not audible yet), unmuting shows it loading again
+            if (unmuting && activeId != null && activeId == desiredId && settledId != activeId) {
+                setLoading(activeId)
+            }
             output.setMuted(muted)
         }
 
@@ -167,6 +172,9 @@ class BgmCueMachine<T : Any>(private val scope: CoroutineScope, private val outp
             started = output.start(item, track.id, loop)
         } finally {
             if (!started && activeId == track.id) activeId = null
+            // Still wanted but not playing (muted meanwhile, no audio focus, fetch failed): owed
+            // again when unmuted, since the same cue is otherwise never acted on twice
+            if (!started && desiredId == track.id) deferred = true
             if (!started) clearLoading(track.id)
         }
     }

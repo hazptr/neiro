@@ -40,7 +40,7 @@ class ReaderBgmController(
     private val mutableState = MutableStateFlow(State())
     val state = mutableState.asStateFlow()
 
-    private val player = ChapterBgmPlayer(scope, context, support.bgmCache)
+    private val player = ChapterBgmPlayer(scope, context, support.bgmCache, onFocusDenied = ::onFocusDenied)
 
     /** Whether the loading spinner should show: music is loading and has been for a moment. */
     val loadingSpinner = player.loading.spinnerVisible().stateIn(scope, SharingStarted.Eagerly, false)
@@ -97,6 +97,13 @@ class ReaderBgmController(
 
     fun toggleMuted() {
         mutableState.update { it.copy(muted = !it.muted) }
+        lastPage?.let(::onPageChanged)
+    }
+
+    /** Audio focus was refused: show the mute as on, so the controls match the silence. */
+    private fun onFocusDenied() {
+        if (state.value.muted) return
+        mutableState.update { it.copy(muted = true) }
         lastPage?.let(::onPageChanged)
     }
 

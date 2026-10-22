@@ -427,6 +427,59 @@ class BgmCueMachineTest {
         output.startCalls shouldBe listOf("a", "b")
     }
 
+    @Test
+    fun `unmuting while the fetch is still in flight shows loading again`() = runTest {
+        val output = FakeOutput()
+        val load = CompletableDeferred<File?>()
+        output.pendingLoads["a"] = load
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        machine.page(trackA, muted = true)
+        machine.loading.value shouldBe false
+
+        machine.page(trackA, muted = false)
+        machine.loading.value shouldBe true
+
+        load.complete(File("/a"))
+        advanceUntilIdle()
+        output.startCalls shouldBe listOf("a")
+        machine.onTrackSettled("a")
+        machine.loading.value shouldBe false
+    }
+
+    @Test
+    fun `unmuting a settled track does not show loading`() = runTest {
+        val output = FakeOutput()
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        machine.onTrackSettled("a")
+        machine.page(trackA, muted = true)
+
+        machine.page(trackA, muted = false)
+
+        machine.loading.value shouldBe false
+    }
+
+    @Test
+    fun `a start refused for audio focus is retried when the reader unmutes`() = runTest {
+        val output = FakeOutput()
+        output.startResult = false
+        val machine = BgmCueMachine(this, output)
+        machine.page(trackA)
+        advanceTimeBy(SETTLE_MS + 1)
+        output.startCalls shouldBe listOf("a")
+
+        // The UI answers a refusal by showing the mute, then the reader lifts it
+        output.startResult = true
+        machine.page(trackA, muted = true)
+        machine.page(trackA, muted = false)
+        advanceTimeBy(SETTLE_MS + 1)
+
+        output.startCalls shouldBe listOf("a", "a")
+    }
+
     private class FakeOutput : BgmCueMachine.Output<File> {
 
         val loadCalls = mutableListOf<String>()

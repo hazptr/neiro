@@ -33,6 +33,12 @@ private const val FADE_OUT_MS = 600L
 private const val FADE_STEPS = 24
 
 /**
+ * A track still fading out when the mute comes finishes in this long instead: the mute is meant to
+ * stop the music, but a short ramp still avoids the click of cutting a playing track dead.
+ */
+private const val MUTED_FADE_OUT_MS = 150L
+
+/**
  * ExoPlayer output for source-provided background music: audio focus and crossfades. Cue
  * decisions - settle debounce, supersede, enable/disable, loop changes - live in [BgmCueMachine];
  * this class only carries out what it decides.
@@ -45,6 +51,8 @@ class ChapterBgmPlayer(
     private val scope: CoroutineScope,
     private val context: Context,
     private val bgmCache: BgmCache,
+    /** Audio focus was refused for a track the reader wants: the caller should show the mute as on. */
+    private val onFocusDenied: () -> Unit = {},
 ) : BgmCueMachine.Output<MediaSource> {
 
     private val audioManager = context.getSystemService<AudioManager>()
@@ -125,6 +133,8 @@ class ChapterBgmPlayer(
             if (muted) return@withContext false
             if (!requestFocus()) {
                 logcat(LogPriority.WARN) { "[BGM] audio focus denied for $id" }
+                // Not left as "unmuted but silent": the reader is shown the mute, and unmuting retries
+                scope.launch(Dispatchers.Main) { onFocusDenied() }
                 return@withContext false
             }
             val exo = ExoPlayer.Builder(context)
@@ -194,6 +204,8 @@ class ChapterBgmPlayer(
         if (this.muted == muted) return
         this.muted = muted
         muteJob?.cancel()
+        // Players still fading out from a cue change need no call here: their fade loop reads
+        // [muted] and finishes at MUTED_FADE_OUT_MS speed.
         val exo = player ?: return
         muteJob = scope.launch(Dispatchers.Main) {
             if (muted) {
@@ -202,7 +214,14 @@ class ChapterBgmPlayer(
                 abandonFocus()
             } else {
                 if (!pausedByLifecycle) {
-                    if (!requestFocus()) return@launch
+                    if (!requestFocus()) {
+                        // Stay paused and muted, and tell the UI, rather than sit silent while it shows
+                        // music on. Unmuting again asks for focus again.
+                        logcat(LogPriority.WARN) { "[BGM] audio focus denied on unmute" }
+                        this@ChapterBgmPlayer.muted = true
+                        onFocusDenied()
+                        return@launch
+                    }
                     exo.play()
                 }
                 fade(exo, from = exo.volume, to = 1f, millis = FADE_IN_MS)
@@ -224,12 +243,25 @@ class ChapterBgmPlayer(
         muteJob?.cancel()
         scope.launch(Dispatchers.Main) {
             try {
-                fade(exo, from = exo.volume, to = 0f, millis = FADE_OUT_MS)
+                // A paused or silent player (held through a mute) has nothing to fade
+                if (exo.playWhenReady && exo.volume > 0f) fadeOutgoing(exo)
             } finally {
                 exo.release()
                 // Only give up focus if nothing else claimed it while fading out.
                 if (player == null) abandonFocus()
             }
+        }
+    }
+
+    /** Linear fade to silence that finishes sooner once muted, even if the mute comes mid-fade. */
+    private suspend fun fadeOutgoing(exo: ExoPlayer) {
+        val step = exo.volume / FADE_STEPS
+        var volume = exo.volume
+        while (volume > 0f) {
+            val speed = if (muted) FADE_OUT_MS / MUTED_FADE_OUT_MS else 1L
+            volume = (volume - step * speed).coerceAtLeast(0f)
+            exo.volume = volume
+            delay(FADE_OUT_MS / FADE_STEPS)
         }
     }
 
