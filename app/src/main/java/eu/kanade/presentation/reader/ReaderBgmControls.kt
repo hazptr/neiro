@@ -5,6 +5,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
@@ -31,24 +34,37 @@ fun ReaderBgmControls(
     onToggleLoop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val muteLabel = stringResource(if (muted) MR.strings.action_bgm_unmute else MR.strings.action_bgm_mute)
+    val loopLabel = stringResource(MR.strings.pref_bgm_loop)
+    val on = stringResource(MR.strings.on)
+    val off = stringResource(MR.strings.off)
     Column(modifier = modifier) {
+        // The label sits on the toggle itself, not the icon, so one node carries the label and the state.
         IconToggleButton(
             checked = muted,
             onCheckedChange = { onToggleMuted() },
+            modifier = Modifier.semantics {
+                contentDescription = muteLabel
+                stateDescription = if (muted) on else off
+            },
         ) {
             Icon(
                 imageVector = if (muted) MaterialSymbols.Rounded.VolumeOff else MaterialSymbols.Rounded.VolumeUp,
-                contentDescription = stringResource(MR.strings.action_bgm_mute),
+                contentDescription = null,
                 tint = ActiveTint,
             )
         }
         IconToggleButton(
             checked = loop,
             onCheckedChange = { onToggleLoop() },
+            modifier = Modifier.semantics {
+                contentDescription = loopLabel
+                stateDescription = if (loop) on else off
+            },
         ) {
             Icon(
                 imageVector = MaterialSymbols.Rounded.Repeat,
-                contentDescription = stringResource(MR.strings.pref_bgm_loop),
+                contentDescription = null,
                 tint = if (loop) ActiveTint else InactiveTint,
             )
         }

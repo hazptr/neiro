@@ -433,6 +433,7 @@
     <string name="pref_bgm_enabled_summary">For sources that provide it</string>
     <string name="pref_bgm_loop">Repeat background music</string>
     <string name="action_bgm_mute">Mute background music</string>
+    <string name="action_bgm_unmute">Unmute background music</string>
     <string name="bgm_loading">Loading background music</string>
     <string name="extension_has_audio">Plays background music</string>
     <string name="pref_vertical_navigator">Use vertical chapter navigator in</string>
