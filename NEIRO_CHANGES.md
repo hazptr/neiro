@@ -5,6 +5,13 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.2.15
+- Mute now pauses the music, and unmute picks it up where it stopped.
+- Muting while one track fades into the next stops both, and nothing starts again until you unmute.
+- The music controls follow the reader's top bar exactly as it opens and closes.
+- The music controls are easier to see on light and dark pages.
+- Screen readers now announce the loading spinner, and the mute and repeat buttons say whether they are on.
+
 ## 0.21.2.14
 - The music loading spinner now slides in below mute and repeat instead of replacing them, so both stay usable while a track loads.
 
