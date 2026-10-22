@@ -61,3 +61,5 @@ The changes inside Mihon's files, so a conflict is quick to place:
   crash reporting default to off, a fixed name replaces the random package in `WebViewUtil`, and the
   update check time is stored (`BasePreferences.lastAppUpdateCheck`).
 - **Startup:** `neiro.app.NeiroStartup`, called from `App`.
+- **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
+  (the Keiyoushi and Neiro extension store keys) to the stores' keys.

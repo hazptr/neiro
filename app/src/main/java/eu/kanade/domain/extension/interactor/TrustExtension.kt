@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import mihon.domain.extension.model.ExtensionStore
 import mihon.domain.extension.repository.ExtensionStoreRepository
+import neiro.extension.TrustedSigners
 import tachiyomi.core.common.preference.getAndSet
 
 @Inject
@@ -21,6 +22,7 @@ class TrustExtension(
 
     fun isTrusted(pkgInfo: PackageInfo, fingerprints: List<String>, stores: List<ExtensionStore>): Boolean {
         val trustedFingerprints = stores.mapTo(HashSet()) { it.signingKey }
+        trustedFingerprints += TrustedSigners.fingerprints
         val key = "${pkgInfo.packageName}:${PackageInfoCompat.getLongVersionCode(pkgInfo)}:${fingerprints.last()}"
         return trustedFingerprints.any { fingerprints.contains(it) } || key in preferences.trustedExtensions.get()
     }
