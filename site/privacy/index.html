@@ -37,7 +37,7 @@
   <main class="wrap doc">
     <article class="card">
       <h1>Privacy</h1>
-      <p class="updated">Last updated 20 October 2026. Applies to every Neiro version; 0.21.2.9 and earlier linked to Mihon's policy by mistake.</p>
+      <p class="updated">Last updated 27 October 2026. Applies to every Neiro version; 0.21.2.9 and earlier linked to Mihon's policy by mistake.</p>
 
       <p>Neiro has no analytics, no crash reporting, no ads and no account. The app you download contains no analytics or crash-reporting code (no Firebase), and there is no Neiro server: nothing you do in the app is sent to the people who make it. GitHub, which hosts the downloads, shows download counts for each release.</p>
 
@@ -58,6 +58,7 @@
         <li><strong>Images in text.</strong> Images inside manga descriptions and release notes load from wherever they're hosted.</li>
         <li><strong>WebView.</strong> Pages you open in WebView load in your device's system WebView. When a site shows a browser check, Neiro may also load it in a hidden WebView automatically. As in a browser, sites in WebView can ask for your device model and Android version.</li>
         <li><strong>Trackers.</strong> Only after you log in to one. Neiro then sends the titles you search for and your reading status, progress, score and dates, and keeps them in sync as you read. Logins use the apps Mihon registered with those services, so the services see the requests as coming from Mihon.</li>
+        <li><strong>Recommendations.</strong> Only when you open Recommendations on a series. Neiro then sends its title, or its ID on a tracker you have linked it to, to AniList (<code>graphql.anilist.co</code>), MangaUpdates (<code>api.mangaupdates.com</code>) and Jikan (<code>api.jikan.moe</code>, a third-party service that reads MyAnimeList), without logging in. The covers they suggest load from wherever those services host them.</li>
         <li><strong>DNS over HTTPS.</strong> Only if you turn it on in Settings, Advanced. It covers Neiro's own requests; WebView still uses your normal DNS.</li>
         <li><strong>Connections.</strong> Some sites only work over unencrypted HTTP, so Neiro allows it, and Neiro trusts certificates you install yourself.</li>
       </ul>

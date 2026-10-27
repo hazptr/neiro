@@ -66,5 +66,7 @@ The changes inside Mihon's files, so a conflict is quick to place:
   series from the screen's existing `MangaViewModel` (androidx default key) and the extension's related titles API
   by reflection (`neiro.related.RelatedTitlesSupport`), so source-api stays Mihon's. If Mihon ever creates that
   view model with a key, the entry disappears without a build error: check it after each Mihon merge.
+- **Recommendations:** no hook of its own. Its menu entry is the second one `neiroMangaOverflowActions()`
+  returns (`neiro.recommendations`), plus the `action_recommendations` and `recommendations_*` strings.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import cafe.adriel.voyager.navigator.LocalNavigator
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.tachiyomi.ui.manga.MangaViewModel
+import neiro.recommendations.RecommendationsScreen
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import kotlin.reflect.KClass
@@ -29,14 +30,23 @@ fun neiroMangaOverflowActions(): List<AppBar.OverflowAction> {
     } ?: return emptyList()
     val state by mangaViewModel.state.collectAsStateWithLifecycle()
     val success = state as? MangaViewModel.State.Success ?: return emptyList()
-    if (!RelatedTitlesSupport.capabilities(success.source).any) return emptyList()
 
-    return listOf(
-        AppBar.OverflowAction(
-            title = stringResource(MR.strings.action_related_titles),
-            onClick = { navigator.push(RelatedTitlesScreen(success.manga.id)) },
-        ),
-    )
+    return buildList {
+        if (RelatedTitlesSupport.capabilities(success.source).any) {
+            add(
+                AppBar.OverflowAction(
+                    title = stringResource(MR.strings.action_related_titles),
+                    onClick = { navigator.push(RelatedTitlesScreen(success.manga.id)) },
+                ),
+            )
+        }
+        add(
+            AppBar.OverflowAction(
+                title = stringResource(MR.strings.action_recommendations),
+                onClick = { navigator.push(RecommendationsScreen(success.manga.id)) },
+            ),
+        )
+    }
 }
 
 /** Hands back the series screen's existing ViewModel; never creates one. */
