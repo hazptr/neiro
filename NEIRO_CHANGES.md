@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.3.2
+- Related titles in the series menu, for sources that suggest them: the site's own picks, or searches for words from the title.
+
 ## 0.21.3.1
 - Built on Mihon 0.21.3: a time format setting, faster backup restores, and the Shizuku installer now works with Sui.
 
