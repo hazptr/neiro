@@ -61,5 +61,10 @@ The changes inside Mihon's files, so a conflict is quick to place:
   crash reporting default to off, a fixed name replaces the random package in `WebViewUtil`, and the
   update check time is stored (`BasePreferences.lastAppUpdateCheck`).
 - **Startup:** `neiro.app.NeiroStartup`, called from `App`.
+- **Related titles:** one `addAll(neiro.related.neiroMangaOverflowActions())` at the end of the overflow list in
+  `MangaToolbar`, and the `action_related_titles` and `related_titles_from_source` strings. The entry reads the
+  series from the screen's existing `MangaViewModel` (androidx default key) and the extension's related titles API
+  by reflection (`neiro.related.RelatedTitlesSupport`), so source-api stays Mihon's. If Mihon ever creates that
+  view model with a key, the entry disappears without a build error: check it after each Mihon merge.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.

@@ -146,6 +146,7 @@ fun MangaToolbar(
                             onClick = onClickEditNotes,
                         ),
                     )
+                    addAll(neiro.related.neiroMangaOverflowActions())
                 },
             )
         },
