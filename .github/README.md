@@ -17,7 +17,6 @@ Neiro is [Mihon](https://github.com/mihonapp/mihon) with a few features I wanted
 - Background music for chapters that come with it
 - Chapter upload settings: one upload per chapter, and preferred or blocked scanlator groups
 - Related titles in the series menu, for sources that suggest them
-- Extensions from the Keiyoushi and Neiro stores trusted without asking
 
 Everything else is Mihon, and regular extensions work unchanged. Neiro follows Mihon's releases closely: a new
 Mihon version usually reaches Neiro within a day or two.
