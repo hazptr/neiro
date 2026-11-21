@@ -4,17 +4,23 @@
 
 # Neiro
 
-### Mihon, with background music
-
-Neiro is [Mihon](https://github.com/mihonapp/mihon) plus one feature: it plays the background music some
-sources attach to a chapter. Everything else is Mihon, and
-regular extensions work unchanged.
+### A Mihon fork with a few extras
 
 *Requires Android 8.0 or higher.*
 
 [hazptr.github.io/neiro](https://hazptr.github.io/neiro/)
 
 </div>
+
+Neiro is [Mihon](https://github.com/mihonapp/mihon) with a few features I wanted that it doesnt have:
+
+- Background music for chapters that come with it
+- Chapter upload settings: one upload per chapter, and preferred or blocked scanlator groups
+- Related titles in the series menu, for sources that suggest them
+- Extensions from the Keiyoushi and Neiro stores trusted without asking
+
+Everything else is Mihon, and regular extensions work unchanged. Neiro follows Mihon's releases closely: a new
+Mihon version usually reaches Neiro within a day or two.
 
 ## Download
 
@@ -37,6 +43,12 @@ Sources built against
 to their pages; Neiro plays each track over the pages it is cued to, crossfades between tracks, ducks
 other audio instead of stopping it, and stores the tracks with downloaded chapters so they play offline
 (**Settings → Downloads → Download background music**).
+
+## Chapter uploads
+
+**Settings → Appearance → Chapter uploads** sets the defaults: all uploads or one per chapter, plus preferred
+and blocked scanlator groups. Each series starts from them, and its scanlator filter (chapter list filter →
+**Scanlator**) can change them for that series.
 
 ## Relationship to Mihon
 
