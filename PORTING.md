@@ -36,8 +36,8 @@ After the merge:
   one block at the end of `app/build.gradle.kts`, derived from Mihon's untouched `versionCode` and
   `versionName` lines plus `neiro.properties`. Neiro's dependencies are in `gradle/neiro.versions.toml`,
   not Mihon's catalog.
-- **Use Neiro's own copies of whole files Mihon also has.** Neiro's README is `.github/README.md` (GitHub
-  shows it ahead of the root one), and Neiro's release workflow is `neiro-release.yml`; Mihon's own
+- **Use Neiro's own copies of whole files Mihon also has.** Neiro's README, CONTRIBUTING and CODE_OF_CONDUCT are in `.github/`
+  (GitHub shows them ahead of the root ones), and Neiro's release workflow is `neiro-release.yml`; Mihon's own
   workflows only run in Mihon's repository.
 - **Keep hooks away from lines Mihon changes often.** Git reports a conflict when both sides edit
   neighbouring lines, so a hook goes next to a stable line, not next to a version number.
