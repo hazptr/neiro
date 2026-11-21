@@ -166,6 +166,7 @@ object SettingsAppearanceScreen : SearchableSettings {
                     preference = uiPreferences.imagesInDescription,
                     title = stringResource(MR.strings.pref_display_images_description),
                 ),
+                *neiro.uploads.chapterUploadsPreferenceItems(),
             ),
         )
     }

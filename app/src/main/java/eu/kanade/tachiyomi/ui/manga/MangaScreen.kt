@@ -290,7 +290,8 @@ class MangaScreen(
         }
 
         if (showScanlatorsDialog) {
-            ScanlatorFilterDialog(
+            neiro.uploads.ChapterUploadsDialog(
+                manga = successState.manga,
                 availableScanlators = successState.availableScanlators,
                 excludedScanlators = successState.excludedScanlators,
                 onDismissRequest = { showScanlatorsDialog = false },

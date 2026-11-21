@@ -1184,6 +1184,7 @@ class MangaViewModel(
                 val bookmarkedFilter = manga.bookmarkedFilter
                 val chapterSort = getChapterSort(manga)
                 return asSequence()
+                    .let { neiro.uploads.ChapterListFilter.apply(it, manga) { item -> item.chapter } }
                     .filter { (chapter) -> applyFilter(unreadFilter) { !chapter.read } }
                     .filter { (chapter) -> applyFilter(bookmarkedFilter) { chapter.bookmark } }
                     .filter { applyFilter(downloadedFilter) { it.isDownloaded || isLocalManga } }

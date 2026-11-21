@@ -66,5 +66,13 @@ The changes inside Mihon's files, so a conflict is quick to place:
   series from the screen's existing `MangaViewModel` (androidx default key) and the extension's related titles API
   by reflection (`neiro.related.RelatedTitlesSupport`), so source-api stays Mihon's. If Mihon ever creates that
   view model with a key, the entry disappears without a build error: check it after each Mihon merge.
+- **Chapter uploads:** `neiro.uploads.ChapterListFilter` (one upload per chapter) runs first in each `applyFilters` of
+  `ChapterFilter.kt` and in `MangaViewModel`'s private `applyFilters` (one line each; the `List<Chapter>` one moves
+  Mihon's `filter` call to the next line), and in `ReaderViewModel.loadChapterList` (keeps the opened chapter).
+  `SyncChaptersWithSource` calls `neiro.uploads.ChapterUploadsSeeder.seed` once the chapter numbers are recognised,
+  which adds blocked groups to Mihon's per-title excluded scanlators the first time a title lists them. `MangaScreen`
+  (ui) opens `neiro.uploads.ChapterUploadsDialog` instead of `ScanlatorFilterDialog` (same arguments plus `manga`).
+  The settings (`neiro.uploads.ChapterUploadsPreferences`) are one `*neiro.uploads.chapterUploadsPreferenceItems()`
+  line at the end of the Display group in `SettingsAppearanceScreen`. Also the `neiro_uploads_*` strings.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.

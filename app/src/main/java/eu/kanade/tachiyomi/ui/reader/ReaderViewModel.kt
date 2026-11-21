@@ -282,6 +282,7 @@ class ReaderViewModel(
         }
 
         return chaptersForReader
+            .let { neiro.uploads.ChapterListFilter.apply(it, manga, keepId = chapterId) { chapter -> chapter } }
             .sortedWith(getChapterSort(manga, sortDescending = false))
             .run {
                 if (readerPreferences.skipDupe.get()) {

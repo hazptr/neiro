@@ -102,6 +102,7 @@ class SyncChaptersWithSource(
             .zip(ChapterRecognition.parseChapterNumbers(manga.title, preparedChapters)) { chapter, numbering ->
                 chapter.copy(chapterNumber = numbering.chapter?.let(ChapterRecognition::toDouble) ?: -1.0)
             }
+        neiro.uploads.ChapterUploadsSeeder.seed(manga, recognizedChapters)
 
         for (chapter in recognizedChapters) {
             if (!sourceUrls.add(chapter.url)) continue
