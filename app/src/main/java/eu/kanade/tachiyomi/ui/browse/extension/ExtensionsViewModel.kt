@@ -74,7 +74,8 @@ class ExtensionsViewModel(
             .debounce { if (it.isNullOrEmpty()) Duration.ZERO else 0.25.seconds }
             .map { searchQueryPredicate(it ?: "") },
         currentDownloads,
-        getExtensions.subscribe(),
+        getExtensions.subscribe()
+            .let(neiro.extension.StoreFilter::filterHiddenStores),
     ) { predicate, downloads, (_updates, _loaded, _available, _notLoaded) ->
         buildMap {
             val updates = _updates.filter(predicate).map(extensionMapper(downloads))

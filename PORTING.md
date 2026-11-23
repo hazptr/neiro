@@ -74,5 +74,9 @@ The changes inside Mihon's files, so a conflict is quick to place:
   (ui) opens `neiro.uploads.ChapterUploadsDialog` instead of `ScanlatorFilterDialog` (same arguments plus `manga`).
   The settings (`neiro.uploads.ChapterUploadsPreferences`) are one `*neiro.uploads.chapterUploadsPreferenceItems()`
   line at the end of the Display group in `SettingsAppearanceScreen`. Also the `neiro_uploads_*` strings.
+- **Store filter:** `ExtensionsViewModel` passes `getExtensions.subscribe()` through
+  `neiro.extension.StoreFilter::filterHiddenStores` (one `.let` line), and `ExtensionFilterContent` in
+  `presentation/browse/ExtensionFilterScreen.kt` has one `rememberStoreFilterState()` line and one `storeFilterItems`
+  line at the top of its list (the store switches and their headers). The `neiro_extension_filter_*` strings.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.

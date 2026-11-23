@@ -53,9 +53,11 @@ private fun ExtensionFilterContent(
     onClickLang: (String) -> Unit,
 ) {
     val context = LocalContext.current
+    val stores = neiro.extension.rememberStoreFilterState()
     LazyColumn(
         contentPadding = contentPadding,
     ) {
+        neiro.extension.storeFilterItems(this, stores)
         items(state.languages) { language ->
             SwitchPreferenceWidget(
                 modifier = Modifier.animateItem(),
