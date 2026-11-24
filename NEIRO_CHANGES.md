@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.3.4
+- Filter the Extensions tab by store: Browse, Extensions, Filter has a switch for each store you added.
+
 ## 0.21.3.3
 - Chapter upload settings under Appearance: all uploads or one per chapter, plus preferred and blocked scanlator groups that new titles start from.
 - The scanlator filter on a series can show one upload per chapter and set the order of the groups it prefers.
