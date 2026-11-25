@@ -91,6 +91,18 @@ object ChapterListFilter {
 
     fun <T> apply(items: Sequence<T>, manga: Manga, chapterOf: (T) -> Chapter): Sequence<T> =
         apply(items.toList(), manga, chapterOf = chapterOf).asSequence()
+
+    /** Whether "One per chapter" hides any of [items], so the series screen marks its filter active. */
+    fun <T> hidesUploads(items: List<T>, manga: Manga, chapterOf: (T) -> Chapter): Boolean {
+        if (ChapterUploadsPreferences.instance.effectiveMode(manga) != ChapterUploads.Mode.ONE_PER_CHAPTER) {
+            return false
+        }
+        val numbers = HashSet<Double>()
+        return items.any { item ->
+            val chapter = chapterOf(item)
+            chapter.isRecognizedNumber && !numbers.add(chapter.chapterNumber)
+        }
+    }
 }
 
 /** Excludes, per title, the scanlator texts of blocked groups the first time the title lists them. */

@@ -72,6 +72,10 @@ The changes inside Mihon's files, so a conflict is quick to place:
   `SyncChaptersWithSource` calls `neiro.uploads.ChapterUploadsSeeder.seed` once the chapter numbers are recognised,
   which adds blocked groups to Mihon's per-title excluded scanlators the first time a title lists them. `MangaScreen`
   (ui) opens `neiro.uploads.ChapterUploadsDialog` instead of `ScanlatorFilterDialog` (same arguments plus `manga`).
+  `MangaViewModel`'s `scanlatorFilterActive` (a lazy, warmed in `state`'s `onEach`) is also true when
+  `neiro.uploads.ChapterListFilter.hidesUploads`, and the library's counts go through `neiro.uploads.ChapterListCounts`
+  (around `getLibraryManga.subscribe()` in `LibraryViewModel` and `getLibraryManga.await()` in `LibraryUpdateWorker`),
+  so the unread badge counts only the uploads the series screen shows.
   The settings (`neiro.uploads.ChapterUploadsPreferences`) are one `*neiro.uploads.chapterUploadsPreferenceItems()`
   line at the end of the Display group in `SettingsAppearanceScreen`. Also the `neiro_uploads_*` strings.
 - **Store filter:** `ExtensionsViewModel` passes `getExtensions.subscribe()` through

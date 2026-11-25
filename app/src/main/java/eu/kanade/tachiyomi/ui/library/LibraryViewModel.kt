@@ -416,7 +416,7 @@ class LibraryViewModel(
 
     private fun getFavoritesFlow(): Flow<List<LibraryItem>> {
         return combine(
-            getLibraryManga.subscribe(),
+            neiro.uploads.ChapterListCounts.library(getLibraryManga.subscribe()),
             getLibraryItemPreferencesFlow(),
             downloadCache.changes.pausedWhileUnsubscribed(),
         ) { libraryManga, preferences, _ ->

@@ -166,7 +166,7 @@ class LibraryUpdateWorker(private val context: Context, workerParams: WorkerPara
      * @param categoryId the ID of the category to update, or -1 if no category specified.
      */
     private suspend fun addMangaToQueue(categoryId: Long) {
-        val libraryManga = getLibraryManga.await()
+        val libraryManga = neiro.uploads.ChapterListCounts.visible(getLibraryManga.await())
 
         val listToUpdate = if (categoryId != -1L) {
             libraryManga.filter { categoryId in it.categories }

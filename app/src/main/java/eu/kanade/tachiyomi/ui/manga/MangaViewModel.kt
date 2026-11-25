@@ -293,6 +293,7 @@ class MangaViewModel(
             it.hasUnreadChapters
             it.hasReadChapters
             it.missingChapterCount
+            it.scanlatorFilterActive
         }
         .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope + subscriberGate, subscriberGate.whileSubscribed(5.seconds), State.Loading)
@@ -1167,8 +1168,10 @@ class MangaViewModel(
                 }
             }
 
-            val scanlatorFilterActive: Boolean
-                get() = excludedScanlators.intersect(availableScanlators).isNotEmpty()
+            val scanlatorFilterActive: Boolean by lazy {
+                excludedScanlators.intersect(availableScanlators).isNotEmpty() ||
+                    neiro.uploads.ChapterListFilter.hidesUploads(chapters, manga) { it.chapter }
+            }
 
             val filterActive: Boolean
                 get() = scanlatorFilterActive || manga.chaptersFiltered()
