@@ -5,6 +5,9 @@ workflow publishes the section for the tagged version as the release notes, whic
 in-app update screen shows. Keep each bullet on one line: the update screen renders
 a wrapped line's indent as extra spaces.
 
+## 0.21.3.7
+- Extension stores can show their own icon, next to the store's name in the store list, the Extensions tab and its filter.
+
 ## 0.21.3.6
 - The default user agent uses the installed WebView's Chrome version when it is newer, and WebView client hints report its exact version, as Chrome does.
 
