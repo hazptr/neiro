@@ -115,7 +115,7 @@ fun WebView.setUserAgent(userAgent: String) {
 
     val versionMatch = CHROME_VERSION_REGEX.find(userAgent) ?: return
     val majorVersion = versionMatch.groupValues[1]
-    val fullVersion = majorVersion + versionMatch.groupValues[2].ifEmpty { ".0.0.0" }
+    val fullVersion = neiro.network.WebViewUserAgent.fullVersion(majorVersion, versionMatch.groupValues[2])
 
     try {
         val metadata = WebSettingsCompat.getUserAgentMetadata(settings)

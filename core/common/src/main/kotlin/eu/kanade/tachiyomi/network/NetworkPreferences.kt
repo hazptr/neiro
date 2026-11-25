@@ -26,7 +26,7 @@ class NetworkPreferences(
 
     val dohProvider: Preference<Int> = preferenceStore.getInt("doh_provider", -1)
 
-    val defaultUserAgent: Preference<String> = preferenceStore.getString(
+    val defaultUserAgent: Preference<String> = neiro.network.WebViewUserAgent matching preferenceStore.getString(
         "default_user_agent",
         "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
     )

@@ -78,6 +78,12 @@ The changes inside Mihon's files, so a conflict is quick to place:
   so the unread badge counts only the uploads the series screen shows.
   The settings (`neiro.uploads.ChapterUploadsPreferences`) are one `*neiro.uploads.chapterUploadsPreferenceItems()`
   line at the end of the Display group in `SettingsAppearanceScreen`. Also the `neiro_uploads_*` strings.
+- **WebView user agent:** `NetworkPreferences.defaultUserAgent` is wrapped as
+  `neiro.network.WebViewUserAgent matching preferenceStore.getString(` (only its first line changes; the default
+  takes the installed WebView's Chrome version when newer), and `setUserAgent` in `WebViewUtil.kt` takes its
+  `fullVersion` from `WebViewUserAgent.fullVersion` (the WebView's exact version in client hints). The code is in
+  `core/common/src/main/kotlin/neiro/network/`, since the user agent lives in that module. Mihon's open PR 4224
+  does the same; once Mihon ships it, take Mihon's lines and delete Neiro's file.
 - **Store filter:** `ExtensionsViewModel` passes `getExtensions.subscribe()` through
   `neiro.extension.StoreFilter::filterHiddenStores` (one `.let` line), and `ExtensionFilterContent` in
   `presentation/browse/ExtensionFilterScreen.kt` has one `rememberStoreFilterState()` line and one `storeFilterItems`
