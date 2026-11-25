@@ -81,7 +81,9 @@ private fun ExtensionStoresListItem(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(imageVector = MaterialSymbols.AutoMirroredRounded.Label, contentDescription = null)
+            neiro.extension.StoreIcon(store) {
+                Icon(imageVector = MaterialSymbols.AutoMirroredRounded.Label, contentDescription = null)
+            }
             Text(
                 text = store.name,
                 modifier = Modifier.padding(start = MaterialTheme.padding.medium),

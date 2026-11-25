@@ -1,8 +1,10 @@
 package neiro.extension
 
 import android.app.Application
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -15,8 +17,9 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import eu.kanade.domain.extension.model.Extensions
+import eu.kanade.presentation.more.settings.widget.BasePreferenceWidget
 import eu.kanade.presentation.more.settings.widget.PreferenceGroupHeader
-import eu.kanade.presentation.more.settings.widget.SwitchPreferenceWidget
+import eu.kanade.presentation.more.settings.widget.TrailingWidgetBuffer
 import eu.kanade.tachiyomi.extension.model.Extension
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -110,11 +113,19 @@ fun storeFilterItems(list: LazyListScope, state: StoreFilterState): Unit = with(
         PreferenceGroupHeader(title = stringResource(MR.strings.neiro_extension_filter_stores))
     }
     items(state.stores, key = { "neiro_store_${it.indexUrl}" }) { store ->
-        SwitchPreferenceWidget(
+        val checked = store.indexUrl !in state.hidden
+        BasePreferenceWidget(
             modifier = Modifier.animateItem(),
             title = store.name,
-            checked = store.indexUrl !in state.hidden,
-            onCheckedChanged = { state.onToggle(store) },
+            icon = store.iconUrl?.let { { StoreIcon(store) } },
+            onClick = { state.onToggle(store) },
+            widget = {
+                Switch(
+                    checked = checked,
+                    onCheckedChange = null,
+                    modifier = Modifier.padding(start = TrailingWidgetBuffer),
+                )
+            },
         )
     }
     item(key = "neiro_languages_header") {

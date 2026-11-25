@@ -90,3 +90,8 @@ The changes inside Mihon's files, so a conflict is quick to place:
   line at the top of its list (the store switches and their headers). The `neiro_extension_filter_*` strings.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.
+- **Store icons:** `ExtensionStore.iconUrl` (one line, defaulted) in `domain`, filled from `meta.icon` in
+  `NetworkLegacyExtensionRepo` (relative to `repo.json`). `ExtensionStoreRepositoryImpl` takes `neiro.data.extension.StoreIcons`
+  (a `data` module file), which keeps the icon per store in app-state preferences so Mihon's `extension_store` table and its
+  migrations stay untouched: one line each in `upsert`, `remove` and the row mapper. Drawn by `neiro.extension.StoreIcon`
+  in `ExtensionStoresContent` (around the label icon) and `ExtensionsScreen` (`StoreLabel` around the store name).

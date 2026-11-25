@@ -349,13 +349,15 @@ private fun ExtensionItemContent(
         )
 
         if (store != null) {
-            Text(
-                text = store.name,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            neiro.extension.StoreLabel(store) {
+                Text(
+                    text = store.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
 
         ExtensionItemMetadata(extension = extension, installStep = installStep)

@@ -22,6 +22,7 @@ import mihon.core.metro.AppCoroutineScope
 import mihon.data.extension.service.ExtensionStoreService
 import mihon.domain.extension.model.ExtensionStore
 import mihon.domain.extension.repository.ExtensionStoreRepository
+import neiro.data.extension.StoreIcons
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.data.Database
 import tachiyomi.data.subscribeToList
@@ -36,6 +37,7 @@ class ExtensionStoreRepositoryImpl(
     @AppCoroutineScope scope: CoroutineScope,
     private val service: ExtensionStoreService,
     private val database: Database,
+    private val storeIcons: StoreIcons,
 ) : ExtensionStoreRepository {
 
     private val stores = database.extension_storeQueries.getAll(::extensionStoreMapper)
@@ -99,6 +101,7 @@ class ExtensionStoreRepositoryImpl(
     }
 
     override suspend fun upsert(store: ExtensionStore) {
+        storeIcons[store.indexUrl] = store.iconUrl
         database.extension_storeQueries.upsert(
             indexUrl = store.indexUrl,
             name = store.name,
@@ -147,6 +150,7 @@ class ExtensionStoreRepositoryImpl(
     }
 
     override suspend fun remove(indexUrl: String) {
+        storeIcons[indexUrl] = null
         database.extension_storeQueries.delete(indexUrl)
     }
 
@@ -170,5 +174,6 @@ class ExtensionStoreRepositoryImpl(
         ),
         isLegacy = isLegacy,
         extensionListUrl = extensionListUrl,
+        iconUrl = storeIcons[indexUrl],
     )
 }

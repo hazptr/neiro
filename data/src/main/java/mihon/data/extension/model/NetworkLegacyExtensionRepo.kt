@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import mihon.domain.extension.model.ExtensionStore
+import neiro.data.extension.StoreIcons
 
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
@@ -18,6 +19,7 @@ data class NetworkLegacyExtensionRepo(
         val shortName: String?,
         val website: String,
         val signingKeyFingerprint: String,
+        val icon: String? = null,
     )
 
     override fun toExtensionStore(indexUrl: String): ExtensionStore {
@@ -32,6 +34,7 @@ data class NetworkLegacyExtensionRepo(
             ),
             isLegacy = true,
             extensionListUrl = null,
+            iconUrl = StoreIcons.resolve(meta.icon, indexUrl),
         )
     }
 }
