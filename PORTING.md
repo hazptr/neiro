@@ -53,8 +53,8 @@ The changes inside Mihon's files, so a conflict is quick to place:
   strings in `i18n/src/commonMain/moko-resources/base/strings.xml`.
 - **Music pane anchor:** one `.readerBgmBarAnchor()` on the top bar's modifier in `ReaderAppBars`, so the pane
   under it follows the bar's real position (`neiro.bgm.ReaderBgmBarAnchor`).
-- **Extension music badge:** `Extension.hasAudio`, read in `ExtensionLoader` and
-  `NetworkLegacyExtension`, drawn by `ExtensionIcon` through `neiro.ui.AudioBadgeBox`.
+- **Extension music badge:** `Extension.hasAudio`, read in `ExtensionLoader` and from the store index's
+  `Extension.audio` (field 601) in `NetworkExtensionStore`, drawn by `ExtensionIcon` through `neiro.ui.AudioBadgeBox`.
 - **Identity:** the end of `app/build.gradle.kts`, the launcher icons and logo drawables, `app_name`,
   the `neiro://add-repo` deep link, the updater's repository, the About screen's links.
 - **Privacy:** telemetry is hard-wired off in `gradle/build-logic/.../BuildConfig.kt`, analytics and
@@ -90,8 +90,8 @@ The changes inside Mihon's files, so a conflict is quick to place:
   line at the top of its list (the store switches and their headers). The `neiro_extension_filter_*` strings.
 - **Trusted signers:** one line in `TrustExtension.isTrusted` adds `neiro.extension.TrustedSigners`
   (the Keiyoushi and Neiro extension store keys) to the stores' keys.
-- **Store icons:** `ExtensionStore.iconUrl` (one line, defaulted) in `domain`, filled from `meta.icon` in
-  `NetworkLegacyExtensionRepo` (relative to `repo.json`). `ExtensionStoreRepositoryImpl` takes `neiro.data.extension.StoreIcons`
+- **Store icons:** `ExtensionStore.iconUrl` (one line, defaulted) in `domain`, filled from the index's `iconUrl`
+  (field 501, keiyoushi's addition to Mihon's index) in `NetworkExtensionStore`. `ExtensionStoreRepositoryImpl` takes `neiro.data.extension.StoreIcons`
   (a `data` module file), which keeps the icon per store in app-state preferences so Mihon's `extension_store` table and its
   migrations stay untouched: one line each in `upsert`, `remove` and the row mapper. Drawn by `neiro.extension.StoreIcon`
   in `ExtensionStoresContent` (around the label icon) and `ExtensionsScreen` (`StoreLabel` around the store name).

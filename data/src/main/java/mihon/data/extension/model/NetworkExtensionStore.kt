@@ -7,6 +7,7 @@ import kotlinx.serialization.protobuf.ProtoNumber
 import mihon.data.extension.model.NetworkExtensionStore.ContentWarning
 import mihon.data.extension.model.NetworkExtensionStore.ExtensionList
 import mihon.domain.extension.model.ExtensionStore
+import neiro.data.extension.StoreIcons
 import eu.kanade.tachiyomi.extension.model.Extension as TachiyomiExtension
 import mihon.domain.extension.model.ContentWarning as DomainContentWarning
 
@@ -19,6 +20,7 @@ data class NetworkExtensionStore(
     @ProtoNumber(4) val contact: Contact,
     @ProtoNumber(101) val extensionList: ExtensionList?,
     @ProtoNumber(102) val extensionListUrl: String?,
+    @ProtoNumber(501) val iconUrl: String? = null,
 ) : BaseNetworkExtensionStore {
     @Serializable
     data class Contact(
@@ -39,6 +41,7 @@ data class NetworkExtensionStore(
         @ProtoNumber(6) val versionName: String,
         @ProtoNumber(7) val contentWarning: ContentWarning,
         @ProtoNumber(8) val sources: List<Source>,
+        @ProtoNumber(601) val audio: Boolean = false,
     )
 
     @Serializable
@@ -89,6 +92,7 @@ data class NetworkExtensionStore(
             ),
             isLegacy = false,
             extensionListUrl = extensionListUrl,
+            iconUrl = StoreIcons.resolve(iconUrl, indexUrl),
         )
     }
 }
@@ -120,6 +124,7 @@ fun ExtensionList.toAvailableExtensions(store: ExtensionStore): List<TachiyomiEx
                 )
             },
             store = store,
+            hasAudio = extension.audio,
         )
     }
 }
