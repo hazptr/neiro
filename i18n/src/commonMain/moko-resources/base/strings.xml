@@ -446,7 +446,10 @@
     <string name="neiro_uploads_preferred_summary">Most preferred first, separated by commas. One per chapter keeps their uploads; a title can set its own order.</string>
     <string name="neiro_uploads_blocked">Blocked groups</string>
     <string name="neiro_uploads_blocked_summary">Separated by commas. A title excludes their uploads when it first lists them; you can include them again per title.</string>
-    <string name="neiro_uploads_order">Preferred order</string>
+    <string name="neiro_uploads_order_hint">Drag to order. Each chapter keeps the upload of the highest group.</string>
+    <string name="neiro_uploads_show">Show uploads</string>
+    <string name="neiro_uploads_hide">Hide uploads</string>
+    <string name="neiro_uploads_show_all">Show all</string>
     <string name="neiro_uploads_move_up">Move up</string>
     <string name="neiro_uploads_move_down">Move down</string>
     <string name="neiro_uploads_use_defaults">Use defaults</string>
